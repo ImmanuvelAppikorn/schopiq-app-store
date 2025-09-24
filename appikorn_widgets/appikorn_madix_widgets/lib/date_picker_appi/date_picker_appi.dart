@@ -1,0 +1,638 @@
+library date_picker_appi;
+
+import 'package:appikorn_madix_widgets/text_appi/text_appi.dart';
+import 'package:appikorn_madix_widgets/text_field_appi/text_field_appi.dart';
+import 'package:appikorn_madix_widgets/utils/madix_global_function.dart';
+import 'package:flutter/material.dart';
+import 'package:mix/mix.dart';
+
+import '../utils/mode/text_field_params_appi.dart';
+
+class DatePickerAppi extends StatefulWidget {
+  const DatePickerAppi({
+    super.key,
+    required this.onChange,
+    this.initialDate,
+    required this.textFieldStyle,
+    this.lastDate,
+    this.firstDate,
+    this.popup = true,
+    this.nextFocusNode, // Add parameter for next focus node
+    this.beforeYear, // Add parameter for years before current year
+  });
+
+  // Text field params
+  final TextFieldParamsAppi textFieldStyle;
+
+  // Picker params
+  final Function(String) onChange;
+  final DateTime? initialDate;
+  final DateTime? lastDate;
+  final DateTime? firstDate;
+  final bool popup;
+  final FocusNode? nextFocusNode; // Add parameter for next focus node
+  final int? beforeYear; // Add parameter for years before current year
+
+  @override
+  State<DatePickerAppi> createState() => _DatePickerAppiState();
+}
+
+class _DatePickerAppiState extends State<DatePickerAppi> {
+  late FocusNode _focusNode;
+  OverlayEntry? _overlayEntry;
+  bool _isDatePickerVisible = false;
+  bool _isManuallyHandlingFocus = false;
+  bool _isDialogOpen = false; // Track if a dialog is currently open
+  static bool _isAnyDatePickerOpen = false; // Static flag to track if any date picker is open
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.textFieldStyle.focus ?? FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    // Reset the static flag if this instance was the one with an open picker
+    if (_isDatePickerVisible || _isDialogOpen) {
+      _isAnyDatePickerOpen = false;
+    }
+    
+    _hideOverlay();
+    
+    if (widget.textFieldStyle.focus == null) {
+      _focusNode.removeListener(_handleFocusChange);
+      _focusNode.dispose();
+    }
+    
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (_isManuallyHandlingFocus) return;
+    if (_isDialogOpen) return; // Don't respond to focus changes if a dialog is open
+    if (_isAnyDatePickerOpen) return; // Don't respond if any date picker is open
+
+    if (_focusNode.hasFocus && !_isDatePickerVisible) {
+      _showDatePicker();
+    } else if (!_focusNode.hasFocus && _isDatePickerVisible && widget.popup) {
+      _hideOverlay();
+    }
+  }
+
+  // Helper method to move focus to next field
+  void _moveToNextField() {
+    // Prevent focus listener from triggering date picker again
+    _isManuallyHandlingFocus = true;
+    _focusNode.unfocus();
+    // if (widget.nextFocusNode != null) {
+    //   widget.nextFocusNode!.requestFocus();
+    // }
+    // If nextFocusNode is null, do not move focus to next field, just unfocus
+    // Reset after a short delay to ensure focus event is handled
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _isManuallyHandlingFocus = false;
+    });
+  }
+
+  // Helper method to cleanly close the date picker and reset all state
+  void _closeDatePicker() {
+    // Reset all flags
+    _isManuallyHandlingFocus = false;
+    _isDialogOpen = false;
+    _isAnyDatePickerOpen = false;
+
+    // Update state with double-check for mounted
+    if (mounted) {
+      try {
+        setState(() {
+          _isDatePickerVisible = false;
+        });
+      } catch (e) {
+        // Silently catch any setState errors if widget is disposed
+        debugPrint('DatePicker setState error (widget likely disposed): $e');
+      }
+    }
+  }
+
+  // Helper method to handle date selection
+  void _handleDateSelected(String dateString) {
+    // Update the value
+    widget.onChange(dateString);
+
+    // Trigger validation
+    if (widget.textFieldStyle.widgetKey.currentState != null) {
+      widget.textFieldStyle.widgetKey.currentState!.validate();
+    }
+
+    // Close the date picker
+    _closeDatePicker();
+
+    // Move to next field after a short delay to ensure dialog is closed
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _moveToNextField();
+      }
+    });
+  }
+
+  void _showDatePicker() {
+    // Prevent multiple date pickers from opening - check both instance and global state
+    if (_isDatePickerVisible || _isDialogOpen || _isAnyDatePickerOpen) {
+      return;
+    }
+
+    // Set global flag to prevent other date pickers from opening
+    _isAnyDatePickerOpen = true;
+
+    setState(() {
+      _isDatePickerVisible = true;
+    });
+
+    if (widget.popup) {
+      _showPopupDatePicker();
+    } else {
+      _showCustomDatePicker();
+    }
+  }
+
+  void _hideOverlay() {
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+    }
+
+    // Reset flags first
+    _isManuallyHandlingFocus = false;
+    _isDialogOpen = false;
+    _isAnyDatePickerOpen = false;
+
+    // Only update UI state if widget is still mounted
+    if (mounted) {
+      try {
+        setState(() {
+          _isDatePickerVisible = false;
+        });
+      } catch (e) {
+        // Silently catch any setState errors if widget is disposed
+        debugPrint('DatePicker _hideOverlay setState error: $e');
+        _isDatePickerVisible = false; // Set directly without setState
+      }
+    } else {
+      // Just set the flag directly if not mounted
+      _isDatePickerVisible = false;
+    }
+  }
+
+  void _showCustomDatePicker() {
+    // Prevent multiple date pickers from opening
+    if (_isDialogOpen) {
+      _isAnyDatePickerOpen = false; // Reset global flag if we're not showing
+      return;
+    }
+    _isDialogOpen = true;
+
+    // Get the initial date without validation against firstDate/lastDate
+    DateTime displayInitialDate = widget.initialDate ?? (widget.beforeYear != null ? DateTime(DateTime.now().year - widget.beforeYear!, DateTime.now().month, DateTime.now().day) : DateTime.now());
+    DateTime safeFirstDate = widget.firstDate ?? DateTime(1900);
+    DateTime safeLastDate = widget.lastDate ?? DateTime(2100);
+
+    // Ensure firstDate is before lastDate
+    if (safeFirstDate.isAfter(safeLastDate)) {
+      // Swap them if they're in the wrong order
+      final DateTime temp = safeFirstDate;
+      safeFirstDate = safeLastDate;
+      safeLastDate = temp;
+    }
+
+    // For calendar selection, we need a safe initialDate within the valid range
+    // but we'll preserve the original displayInitialDate for display purposes
+    DateTime safeInitialDate = displayInitialDate;
+    if (safeInitialDate.isBefore(safeFirstDate)) {
+      safeInitialDate = safeFirstDate; // Set to earliest allowed date for selection
+    } else if (safeInitialDate.isAfter(safeLastDate)) {
+      safeInitialDate = safeLastDate; // Set to latest allowed date for selection
+    }
+
+    // Set flag to prevent focus listener from interfering
+    _isManuallyHandlingFocus = true;
+
+    // Get the render box and position information
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    final Offset offset = box.localToGlobal(Offset.zero);
+    final Size screenSize = MediaQuery.of(context).size;
+    final EdgeInsets padding = MediaQuery.of(context).padding;
+
+    // Set dimensions for dropdown - include buttons area
+    const double calendarWidth = 300.0;
+    const double calendarHeight = 400.0; // Increased to ensure full visibility
+    const double safetyMargin = 20.0; // Increased margin
+
+    // Improved space calculation accounting for screen padding and safe area
+    final double spaceBelow = screenSize.height - (offset.dy + box.size.height + safetyMargin) - padding.bottom;
+    final double spaceAbove = offset.dy - safetyMargin - padding.top;
+
+    // Check horizontal constraints and adjust if needed
+    double preferredLeft = offset.dx;
+    if (preferredLeft + calendarWidth > screenSize.width - safetyMargin) {
+      preferredLeft = screenSize.width - calendarWidth - safetyMargin;
+    }
+    if (preferredLeft < safetyMargin) {
+      preferredLeft = safetyMargin;
+    }
+
+    // Determine if we can show as dropdown
+    final bool canShowBelow = spaceBelow >= calendarHeight;
+    final bool canShowAbove = spaceAbove >= calendarHeight;
+
+    // Store the navigator state for later use
+    final NavigatorState navigator = Navigator.of(context);
+
+    // Always use dialog approach since it's the most reliable way to show the picker
+    // and won't have any positioning issues
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Allow dismissing by tapping outside
+      useSafeArea: true, // Use safe area to avoid system UI
+      useRootNavigator: true, // Use root navigator to avoid nesting issues
+      barrierColor: Colors.black54, // Semi-transparent barrier
+      builder: (BuildContext dialogContext) {
+        DateTime selectedDate = safeInitialDate;
+
+        return WillPopScope(
+          // Prevent back button from leaving dialog open in the background
+          onWillPop: () async {
+            // Immediately reset all flags
+            _isManuallyHandlingFocus = false;
+            _isDialogOpen = false;
+            _isAnyDatePickerOpen = false;
+
+            if (mounted) {
+              setState(() {
+                _isDatePickerVisible = false;
+              });
+            }
+            return true;
+          },
+          child: Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              width: 300,
+              padding: EdgeInsets.zero,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(dialogContext).colorScheme.primary.withOpacity(0.1),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(dialogContext).dividerColor,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Select Date',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Theme.of(dialogContext).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  StatefulBuilder(
+                    builder: (context, setState) {
+                      final mainTheme = Theme.of(context);
+                      final ColorScheme colorScheme = mainTheme.colorScheme;
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 300,
+                            height: 280,
+                            child: Material(
+                              color: Colors.white,
+                              child: Calendar(
+                                initialDate: selectedDate,
+                                firstDate: safeFirstDate,
+                                lastDate: safeLastDate,
+                                onDateChanged: (pickedDate) {
+                                  setState(() => selectedDate = pickedDate);
+                                },
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border(
+                                top: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    // Immediately reset all flags before closing dialog
+                                    _isManuallyHandlingFocus = false;
+                                    _isDialogOpen = false;
+                                    _isAnyDatePickerOpen = false;
+
+                                    // Update state
+                                    if (mounted) {
+                                      this.setState(() {
+                                        _isDatePickerVisible = false;
+                                      });
+                                    }
+
+                                    // Close the dialog
+                                    Navigator.of(dialogContext).pop();
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: colorScheme.onSurface.withOpacity(0.7),
+                                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  ),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final String dateString = selectedDate.toIso8601String();
+                                    widget.onChange(dateString);
+
+                                    // Validate immediately before closing
+                                    if (widget.textFieldStyle.widgetKey.currentState != null) {
+                                      widget.textFieldStyle.widgetKey.currentState!.validate();
+                                    }
+
+                                    // Close the dialog first
+                                    Navigator.of(dialogContext).pop();
+                                    // After dialog is closed, unfocus the field and reset flags
+                                    Future.delayed(const Duration(milliseconds: 100), () {
+                                      if (mounted) {
+                                        _focusNode.unfocus();
+                                        _isDialogOpen = false;
+                                        _isAnyDatePickerOpen = false;
+                                        setState(() {
+                                          _isDatePickerVisible = false;
+                                        });
+                                        // Validate again after everything is updated
+                                        if (widget.textFieldStyle.widgetKey.currentState != null) {
+                                          widget.textFieldStyle.widgetKey.currentState!.validate();
+                                        }
+                                      }
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colorScheme.primary,
+                                    foregroundColor: colorScheme.onPrimary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                                    elevation: 0,
+                                  ),
+                                  child: TextAppi(
+                                    text: 'Done',
+                                    textStyle: Style($text.style.fontSize(13), $text.style.fontWeight(FontWeight.w500)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      // Reset flags after dialog is closed
+      _isManuallyHandlingFocus = false;
+      _isDialogOpen = false;
+      _isAnyDatePickerOpen = false;
+      if (mounted) {
+        setState(() {
+          _isDatePickerVisible = false;
+        });
+        // Always unfocus after dialog closes
+        _focusNode.unfocus();
+      }
+    });
+  }
+
+  void _showPopupDatePicker() {
+    // Prevent multiple date pickers from opening
+    if (_isDialogOpen) {
+      _isAnyDatePickerOpen = false; // Reset global flag if we're not showing
+      return;
+    }
+    _isDialogOpen = true;
+
+    // Get the initial date without validation against firstDate/lastDate
+    DateTime displayInitialDate = widget.initialDate ?? (widget.beforeYear != null ? DateTime(DateTime.now().year - widget.beforeYear!, DateTime.now().month, DateTime.now().day) : DateTime.now());
+    DateTime safeFirstDate = widget.firstDate ?? DateTime(1900);
+    DateTime safeLastDate = widget.lastDate ?? DateTime(2100);
+
+    // Ensure firstDate is before lastDate
+    if (safeFirstDate.isAfter(safeLastDate)) {
+      // Swap them if they're in the wrong order
+      final DateTime temp = safeFirstDate;
+      safeFirstDate = safeLastDate;
+      safeLastDate = temp;
+    }
+
+    // For calendar selection, we need a safe initialDate within the valid range
+    // but we'll preserve the original displayInitialDate for display purposes
+    DateTime safeInitialDate = displayInitialDate;
+    if (safeInitialDate.isBefore(safeFirstDate)) {
+      safeInitialDate = safeFirstDate; // Set to earliest allowed date for selection
+    } else if (safeInitialDate.isAfter(safeLastDate)) {
+      safeInitialDate = safeLastDate; // Set to latest allowed date for selection
+    }
+
+    // Set flag to prevent focus listener from interfering
+    _isManuallyHandlingFocus = true;
+
+    // Store the navigator state for later use
+    final NavigatorState navigator = Navigator.of(context);
+
+    showDatePicker(
+      context: context,
+      initialDate: safeInitialDate,
+      firstDate: safeFirstDate,
+      lastDate: safeLastDate,
+      builder: (BuildContext context, Widget? child) {
+        // Ensure only one date picker is shown
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme,
+            primaryColor: Theme.of(context).colorScheme.primary,
+            // Make sure selected day color is properly applied
+            primaryColorLight: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+            // Ensure buttons use primary color
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+          child: child ?? const SizedBox(),
+        );
+      },
+    ).then((pickedDate) {
+      _isManuallyHandlingFocus = true;
+      _focusNode.unfocus();
+      if (widget.nextFocusNode != null) {
+        widget.nextFocusNode!.requestFocus();
+      } else {
+        FocusScope.of(context).nextFocus();
+      }
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _isManuallyHandlingFocus = false;
+      });
+      _isDialogOpen = false;
+      _isAnyDatePickerOpen = false;
+      if (mounted) {
+        setState(() {
+          _isDatePickerVisible = false;
+        });
+      }
+      if (pickedDate != null) {
+        final dateString = pickedDate.toIso8601String();
+        widget.onChange(dateString);
+        // Add a small delay to ensure widget has updated
+        Future.delayed(const Duration(milliseconds: 50), () {
+          // Force validation to run after value is updated
+          if (widget.textFieldStyle.widgetKey.currentState != null) {
+            widget.textFieldStyle.widgetKey.currentState!.validate();
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Use the original initialDate for display without validation
+    DateTime displayInitialDate = widget.initialDate ?? (widget.beforeYear != null ? DateTime(DateTime.now().year - widget.beforeYear!, DateTime.now().month, DateTime.now().day) : DateTime.now());
+    
+    // These are still needed for validation and picker functionality
+    DateTime safeFirstDate = widget.firstDate ?? DateTime(1900);
+    DateTime safeLastDate = widget.lastDate ?? DateTime(2100);
+
+    // Ensure firstDate is before lastDate
+    if (safeFirstDate.isAfter(safeLastDate)) {
+      // Swap them if they're in the wrong order
+      final DateTime temp = safeFirstDate;
+      safeFirstDate = safeLastDate;
+      safeLastDate = temp;
+    }
+
+    final updatedTextFieldStyle = widget.textFieldStyle.copyWith(
+      readOnly: true,
+      noFocus: false,
+      focus: _focusNode,
+      onTap: () {
+        if (!_isDatePickerVisible && !_isDialogOpen && !_isAnyDatePickerOpen) {
+          _showDatePicker();
+        }
+      },
+      // Always use the original initialDate for display, regardless of range validation
+      initialValue: widget.initialDate != null ? MadixGlobalFunction().calculateDateToString(date: displayInitialDate) : '',
+      // Explicitly preserve all validation properties from the original style
+      validator: widget.textFieldStyle.validator,
+      mandatory: widget.textFieldStyle.mandatory,
+      // Make sure to update value after date selection to trigger validation
+      onChanged: (value) {
+        // Still call the original onChanged if it exists
+        if (widget.textFieldStyle.onChanged != null) {
+          widget.textFieldStyle.onChanged!(value);
+        }
+        // Force validation to update
+        if (widget.textFieldStyle.widgetKey.currentState != null) {
+          widget.textFieldStyle.widgetKey.currentState!.validate();
+        }
+      },
+    );
+    return TextFieldAppi.fromParams(updatedTextFieldStyle);
+  }
+}
+
+class Calendar extends StatefulWidget {
+  final DateTime initialDate;
+  final DateTime firstDate;
+  final DateTime lastDate;
+  final Function(DateTime) onDateChanged;
+
+  const Calendar({
+    super.key,
+    required this.initialDate,
+    required this.firstDate,
+    required this.lastDate,
+    required this.onDateChanged,
+  });
+
+  @override
+  State<Calendar> createState() => _CalendarState();
+}
+
+class _CalendarState extends State<Calendar> {
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialDate;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme,
+        primaryColor: Theme.of(context).colorScheme.primary,
+        // Make sure selected day color is properly applied
+        primaryColorLight: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+        // Ensure buttons use primary color
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ),
+      child: CalendarDatePicker(
+        initialDate: _selectedDate,
+        firstDate: widget.firstDate,
+        lastDate: widget.lastDate,
+        onDateChanged: (pickedDate) {
+          setState(() => _selectedDate = pickedDate);
+          widget.onDateChanged(pickedDate);
+        },
+      ),
+    );
+  }
+}

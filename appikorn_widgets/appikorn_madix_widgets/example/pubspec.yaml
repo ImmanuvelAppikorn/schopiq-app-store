@@ -1,0 +1,22 @@
+name: appikorn_madix_widgets_example
+description: Example app for appikorn_madix_widgets package
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0-128.0.dev <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  mix: ^1.5.2
+  appikorn_madix_widgets:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,758 @@
+<section class="api-reference">
+        <h2>API Reference</h2>
+        
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>columns</td>
+                    <td>List&lt;TableColumn&gt;</td>
+                    <td>Required</td>
+                    <td>Column configuration with titles and data bindings</td>
+                </tr>
+                <tr>
+                    <td>data</td>
+                    <td>List&lt;Map&lt;String, dynamic&gt;&gt;</td>
+                    <td>Required</td>
+                    <td>Dataset to display in table format</td>
+                </tr>
+                <tr>
+                    <td>paginate</td>
+                    <td>bool</td>
+                    <td>false</td>
+                    <td>Enable server-side pagination controls</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="theme-customization">
+        <h2>Theme Customization</h2>
+        <div class="example-container">
+            <div class="code-sample">
+                <pre><code>TableWidgetAppi(
+  theme: TableThemeData(
+    headerColor: AppColors.surfaceVariant,
+    rowHeight: 48,
+    borderColor: AppColors.outline
+  )
+)</code></pre>
+            </div>
+            <div class="theme-preview">
+                <div class="theme-swatch" style="background: var(--md-sys-color-surface-variant)"></div>
+                <div class="theme-swatch" style="background: var(--md-sys-color-outline)"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mobile-optimization">
+        <h2>Mobile Optimization</h2>
+        <div class="responsive-example">
+            <div class="device-frame mobile">
+                <div class="screen-content">
+                    <!-- Mobile table preview -->
+                    Horizontal scroll enabled
+                </div>
+            </div>
+            <div class="device-frame desktop">
+                <div class="screen-content">
+                    <!-- Desktop table preview -->
+                    Fixed column layout
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="table-anatomy">
+        <h2>Table Anatomy</h2>
+        <div class="diagram">
+            <svg width="100%" height="300" viewBox="0 0 800 300">
+                <!-- Header Section -->
+                <rect x="50" y="20" width="700" height="50" fill="#E3F2FD" stroke="#2196F3"/>
+                <text x="60" y="50">Headers</text>
+                
+                <!-- Rows Section -->
+                <rect x="50" y="70" width="700" height="180" fill="#FFFFFF" stroke="#E0E0E0"/>
+                <text x="60" y="100">Rows</text>
+                
+                <!-- Scrollbar -->
+                <rect x="730" y="70" width="20" height="180" fill="#F5F5F5" rx="4"/>
+                <rect x="732" y="72" width="16" height="50" fill="#BDBDBD" rx="3"/>
+                
+                <!-- Pagination -->
+                <rect x="50" y="260" width="700" height="30" fill="#FAFAFA" stroke="#E0E0E0"/>
+                <text x="60" y="280">Pagination Controls</text>
+            </svg>
+        </div>
+    </section>
+
+    <section id="customization">
+        <h2>Visual Customization</h2>
+        <div class="feature-grid">
+            <div class="visual-example">
+                <h3>Color Schemes</h3>
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: #E3F2FD" title="headerBackgroundColor"></div>
+                    <div class="color-swatch" style="background: #FFFFFF" title="rowBackgroundColor"></div>
+                    <div class="color-swatch" style="background: #F5F5F5" title="alternateRowBackgroundColor"></div>
+                    <div class="color-swatch" style="background: #EDE7F6" title="selectedRowColor"></div>
+                </div>
+                <pre class="code-sample">
+TableWidgetAppi(
+  headerBackgroundColor: Colors.blue[50],
+  rowBackgroundColor: Colors.white,
+  alternateRowBackgroundColor: Colors.grey[100],
+  selectedRowColor: Colors.deepPurple[50],
+)</pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="interactive-features">
+        <h2>Interactive Features</h2>
+        <div class="feature-grid">
+            <div class="visual-example">
+                <h3>Search & Filter</h3>
+                <div class="diagram">
+                    <svg width="100%" height="100" viewBox="0 0 400 100">
+                        <rect x="10" y="10" width="380" height="40" fill="#FFFFFF" stroke="#2196F3" rx="4"/>
+                        <text x="50" y="35">🔍 Search...</text>
+                    </svg>
+                </div>
+                <pre class="code-sample">
+TableWidgetAppi(
+  enableSearch: true,
+  // Search automatically filters rows
+)</pre>
+            </div>
+
+            <div class="visual-example">
+                <h3>Pagination Controls</h3>
+                <div class="diagram">
+                    <svg width="100%" height="60" viewBox="0 0 400 60">
+                        <rect x="10" y="10" width="80" height="40" fill="#FFFFFF" stroke="#2196F3" rx="4"/>
+                        <text x="35" y="35">←</text>
+                        <rect x="100" y="10" width="40" height="40" fill="#2196F3" stroke="#2196F3" rx="4"/>
+                        <text x="115" y="35" fill="white">1</text>
+                        <rect x="150" y="10" width="40" height="40" fill="#FFFFFF" stroke="#2196F3" rx="4"/>
+                        <text x="165" y="35">2</text>
+                        <rect x="310" y="10" width="80" height="40" fill="#FFFFFF" stroke="#2196F3" rx="4"/>
+                        <text x="335" y="35">→</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="responsive-behavior">
+        <h2>Responsive Behavior</h2>
+        <div class="diagram">
+            <svg width="100%" height="200" viewBox="0 0 800 200">
+                <!-- Desktop View -->
+                <rect x="50" y="20" width="300" height="160" fill="#FFFFFF" stroke="#2196F3"/>
+                <text x="60" y="45">Desktop View</text>
+                <line x1="50" y1="60" x2="350" y2="60" stroke="#E0E0E0"/>
+                
+                <!-- Mobile View -->
+                <rect x="450" y="20" width="150" height="160" fill="#FFFFFF" stroke="#2196F3"/>
+                <text x="460" y="45">Mobile View</text>
+                <line x1="450" y1="60" x2="600" y2="60" stroke="#E0E0E0"/>
+                <!-- Scroll Indicator -->
+                <path d="M 600 100 L 620 100 L 610 110 L 600 100" fill="#2196F3"/>
+            </svg>
+        </div>
+    </section>
+
+    <section id="styling-options">
+        <h2>Styling Options</h2>
+        <div class="feature-grid">
+            <div class="visual-example">
+                <h3>Border Radius</h3>
+                <div class="diagram">
+                    <svg width="100%" height="120" viewBox="0 0 400 120">
+                        <!-- Sharp corners -->
+                        <rect x="10" y="10" width="180" height="100" fill="#FFFFFF" stroke="#2196F3" rx="0"/>
+                        <text x="70" y="65">borderRadius: 0</text>
+                        
+                        <!-- Rounded corners -->
+                        <rect x="210" y="10" width="180" height="100" fill="#FFFFFF" stroke="#2196F3" rx="8"/>
+                        <text x="250" y="65">borderRadius: 8</text>
+                    </svg>
+                </div>
+                <pre class="code-sample">
+TableWidgetAppi(
+  borderRadius: 8.0,  // Default
+  // Set to 0 for sharp corners
+)</pre>
+            </div>
+
+            <div class="visual-example">
+                <h3>Column Alignment</h3>
+                <div class="diagram">
+                    <svg width="100%" height="150" viewBox="0 0 400 150">
+                        <!-- Left aligned -->
+                        <rect x="10" y="10" width="120" height="40" fill="#FFFFFF" stroke="#2196F3"/>
+                        <text x="20" y="35">Left</text>
+                        
+                        <!-- Center aligned -->
+                        <rect x="140" y="10" width="120" height="40" fill="#FFFFFF" stroke="#2196F3"/>
+                        <text x="180" y="35" text-anchor="middle">Center</text>
+                        
+                        <!-- Right aligned -->
+                        <rect x="270" y="10" width="120" height="40" fill="#FFFFFF" stroke="#2196F3"/>
+                        <text x="380" y="35" text-anchor="end">Right</text>
+                    </svg>
+                </div>
+                <pre class="code-sample">
+TableWidgetAppi(
+  columnAlignments: {
+    0: TextAlign.left,
+    1: TextAlign.center,
+    2: TextAlign.right,
+  }
+)</pre>
+            </div>
+        </div>
+    </section>
+
+    <section id="scrollbar-customization">
+        <h2>Scrollbar Customization</h2>
+        <div class="visual-example">
+            <div class="diagram">
+                <svg width="100%" height="200" viewBox="0 0 400 200">
+                    <!-- Thin scrollbar -->
+                    <rect x="10" y="10" width="180" height="180" fill="#FFFFFF" stroke="#2196F3"/>
+                    <rect x="170" y="10" width="8" height="180" fill="#F5F5F5" rx="4"/>
+                    <rect x="171" y="12" width="6" height="50" fill="#BDBDBD" rx="3"/>
+                    <text x="50" y="100">Thin Scrollbar</text>
+                    
+                    <!-- Thick scrollbar -->
+                    <rect x="210" y="10" width="180" height="180" fill="#FFFFFF" stroke="#2196F3"/>
+                    <rect x="370" y="10" width="12" height="180" fill="#F5F5F5" rx="6"/>
+                    <rect x="371" y="12" width="10" height="50" fill="#BDBDBD" rx="5"/>
+                    <text x="250" y="100">Thick Scrollbar</text>
+                </svg>
+            </div>
+            <pre class="code-sample">
+TableWidgetAppi(
+  scrollbarThickness: 8.0,  // Thin
+  scrollbarRadius: 4.0,
+  scrollbarColor: Colors.grey[400],
+  scrollbarAlwaysVisible: true,
+)</pre>
+        </div>
+    </section>
+
+    <section id="flex-columns">
+        <h2>Column Flex Values</h2>
+        <div class="visual-example">
+            <div class="diagram">
+                <svg width="100%" height="100" viewBox="0 0 600 100">
+                    <!-- Flex 1 -->
+                    <rect x="10" y="10" width="100" height="80" fill="#E3F2FD" stroke="#2196F3"/>
+                    <text x="40" y="55">Flex: 1</text>
+                    
+                    <!-- Flex 2 -->
+                    <rect x="120" y="10" width="200" height="80" fill="#E3F2FD" stroke="#2196F3"/>
+                    <text x="200" y="55">Flex: 2</text>
+                    
+                    <!-- Flex 3 -->
+                    <rect x="330" y="10" width="300" height="80" fill="#E3F2FD" stroke="#2196F3"/>
+                    <text x="460" y="55">Flex: 3</text>
+                </svg>
+            </div>
+            <pre class="code-sample">
+TableWidgetAppi(
+  columnFlexValues: {
+    0: 1,  // First column
+    1: 2,  // Second column
+    2: 3,  // Third column
+  }
+)</pre>
+        </div>
+    </section>
+
+    <section id="parameters-reference">
+        <h2>Parameters Reference</h2>
+        
+        <h3>Required Parameters</h3>
+        <div class="parameter-grid">
+            <div class="parameter-item">
+                <h4>headers</h4>
+                <p><strong>Type:</strong> List&lt;dynamic&gt;</p>
+                <p>List of column headers for the table. Each header represents a column title.</p>
+                <pre class="code-sample">
+headers: ['Name', 'Age', 'Status']</pre>
+            </div>
+
+            <div class="parameter-item">
+                <h4>rows</h4>
+                <p><strong>Type:</strong> List&lt;List&lt;dynamic&gt;&gt;</p>
+                <p>Data rows for the table. Each inner list represents a row of data matching the headers.</p>
+                <pre class="code-sample">
+rows: [
+  ['John Doe', 30, 'Active'],
+  ['Jane Smith', 25, 'Inactive']
+]</pre>
+            </div>
+        </div>
+
+        <h3>Pagination Parameters</h3>
+        <div class="parameter-grid">
+            <div class="parameter-item">
+                <h4>pageSize</h4>
+                <p><strong>Type:</strong> int</p>
+                <p><strong>Default:</strong> 10</p>
+                <p>Number of rows to display per page when pagination is enabled.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>enablePagination</h4>
+                <p><strong>Type:</strong> bool</p>
+                <p><strong>Default:</strong> true</p>
+                <p>Whether to show pagination controls at the bottom of the table.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>onPageChanged</h4>
+                <p><strong>Type:</strong> Function(int page, int pageSize)?</p>
+                <p>Callback when page is changed. Useful for server-side pagination.</p>
+                <pre class="code-sample">
+onPageChanged: (page, size) {
+  // Load data for new page
+}</pre>
+            </div>
+
+            <div class="parameter-item">
+                <h4>totalRecords</h4>
+                <p><strong>Type:</strong> int?</p>
+                <p>Total number of records for server-side pagination.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>availablePageSizes</h4>
+                <p><strong>Type:</strong> List&lt;int&gt;?</p>
+                <p>List of available page sizes in the dropdown.</p>
+                <pre class="code-sample">
+availablePageSizes: [10, 20, 50, 100]</pre>
+            </div>
+
+            <div class="parameter-item">
+                <h4>onPageSizeChanged</h4>
+                <p><strong>Type:</strong> Function(int newPageSize)?</p>
+                <p>Callback when the page size is changed through the dropdown. Provides the new page size value.</p>
+                <pre class="code-sample">
+onPageSizeChanged: (newSize) {
+  // Handle page size change
+  setState(() {
+    currentPageSize = newSize;
+  });
+}</pre>
+            </div>
+        </div>
+
+        <h3>Styling Parameters</h3>
+        <div class="parameter-grid">
+            <div class="parameter-item">
+                <h4>headerBackgroundColor</h4>
+                <p><strong>Type:</strong> Color?</p>
+                <p>Background color for the header row.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>rowBackgroundColor</h4>
+                <p><strong>Type:</strong> Color?</p>
+                <p>Background color for data rows.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>alternateRowBackgroundColor</h4>
+                <p><strong>Type:</strong> Color?</p>
+                <p>Background color for alternate rows (zebra striping).</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>selectedRowColor</h4>
+                <p><strong>Type:</strong> Color?</p>
+                <p>Background color for the selected row.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>headerTextStyle</h4>
+                <p><strong>Type:</strong> TextStyle?</p>
+                <p>Text style for header text.</p>
+                <pre class="code-sample">
+headerTextStyle: TextStyle(
+  fontWeight: FontWeight.bold,
+  color: Colors.black87
+)</pre>
+            </div>
+
+            <div class="parameter-item">
+                <h4>rowTextStyle</h4>
+                <p><strong>Type:</strong> TextStyle?</p>
+                <p>Text style for row data.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>borderRadius</h4>
+                <p><strong>Type:</strong> double</p>
+                <p><strong>Default:</strong> 8.0</p>
+                <p>Border radius for the table corners.</p>
+            </div>
+        </div>
+
+        <h3>Layout Parameters</h3>
+        <div class="parameter-grid">
+            <div class="parameter-item">
+                <h4>columnFlexValues</h4>
+                <p><strong>Type:</strong> Map&lt;int, int&gt;?</p>
+                <p>Flex values for each column. Key is column index, value is flex factor.</p>
+                <pre class="code-sample">
+columnFlexValues: {
+  0: 2,  // First column takes 2 parts
+  1: 1   // Second column takes 1 part
+}</pre>
+            </div>
+
+            <div class="parameter-item">
+                <h4>columnAlignments</h4>
+                <p><strong>Type:</strong> Map&lt;int, TextAlign&gt;?</p>
+                <p>Text alignment for each column.</p>
+                <pre class="code-sample">
+columnAlignments: {
+  0: TextAlign.left,
+  1: TextAlign.center
+}</pre>
+            </div>
+
+            <div class="parameter-item">
+                <h4>maxHeight</h4>
+                <p><strong>Type:</strong> double?</p>
+                <p>Maximum height of the table. Enables vertical scrolling if content exceeds this height.</p>
+            </div>
+        </div>
+
+        <h3>Scrollbar Parameters</h3>
+        <div class="parameter-grid">
+            <div class="parameter-item">
+                <h4>scrollbarColor</h4>
+                <p><strong>Type:</strong> Color?</p>
+                <p>Color of the scrollbar thumb.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>scrollbarThickness</h4>
+                <p><strong>Type:</strong> double</p>
+                <p><strong>Default:</strong> 8.0</p>
+                <p>Thickness of the scrollbar.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>scrollbarRadius</h4>
+                <p><strong>Type:</strong> double</p>
+                <p><strong>Default:</strong> 8.0</p>
+                <p>Border radius of the scrollbar thumb.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>scrollbarAlwaysVisible</h4>
+                <p><strong>Type:</strong> bool</p>
+                <p><strong>Default:</strong> true</p>
+                <p>Whether to always show the scrollbar or only on hover.</p>
+            </div>
+        </div>
+
+        <h3>Interactive Features</h3>
+        <div class="parameter-grid">
+            <div class="parameter-item">
+                <h4>enableSearch</h4>
+                <p><strong>Type:</strong> bool</p>
+                <p><strong>Default:</strong> true</p>
+                <p>Whether to show the search field above the table.</p>
+            </div>
+
+            <div class="parameter-item">
+                <h4>onRowTap</h4>
+                <p><strong>Type:</strong> Function(int)?</p>
+                <p>Callback when a row is tapped. Provides the row index.</p>
+                <pre class="code-sample">
+onRowTap: (index) {
+  // Handle row selection
+}</pre>
+            </div>
+        </div>
+    </section>
+
+    <nav class="table-of-contents">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#table-anatomy">Table Anatomy</a></li>
+            <li><a href="#parameters-reference">Parameters Reference</a></li>
+            <li><a href="#complete-example">Complete Example</a></li>
+            <li><a href="#common-use-cases">Common Use Cases</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#best-practices">Best Practices</a></li>
+        </ul>
+    </nav>
+
+    <section id="complete-example">
+        <h2>Complete Example</h2>
+        <div class="example-container">
+            <pre class="code-sample">
+import 'package:flutter/material.dart';
+
+TableWidgetAppi(
+  // Required parameters
+  headers: ['Name', 'Age', 'Status', 'Actions'],
+  rows: [
+    ['John Doe', 30, 'Active', 'Edit'],
+    ['Jane Smith', 25, 'Inactive', 'Edit'],
+  ],
+  
+  // Pagination
+  pageSize: 10,
+  enablePagination: true,
+  onPageChanged: (page, size) {
+    loadData(page, size);
+  },
+  onPageSizeChanged: (newSize) {
+    setState(() => pageSize = newSize);
+  },
+  totalRecords: 100,
+  availablePageSizes: [10, 20, 50],
+  
+  // Styling
+  headerBackgroundColor: Colors.blue[50],
+  rowBackgroundColor: Colors.white,
+  alternateRowBackgroundColor: Colors.grey[50],
+  selectedRowColor: Colors.blue[100],
+  headerTextStyle: TextStyle(
+    fontWeight: FontWeight.bold,
+    color: Colors.black87,
+  ),
+  rowTextStyle: TextStyle(color: Colors.black87),
+  borderRadius: 8.0,
+  
+  // Layout
+  maxHeight: 500,
+  columnFlexValues: {
+    0: 2,  // Name column wider
+    1: 1,  // Age column
+    2: 1,  // Status column
+    3: 1,  // Actions column
+  },
+  columnAlignments: {
+    0: TextAlign.left,
+    1: TextAlign.center,
+    2: TextAlign.center,
+    3: TextAlign.center,
+  },
+  
+  // Scrollbar
+  scrollbarColor: Colors.blue[200],
+  scrollbarThickness: 8.0,
+  scrollbarRadius: 4.0,
+  scrollbarAlwaysVisible: true,
+  
+  // Interactive features
+  enableSearch: true,
+  onRowTap: (index) {
+    showDetails(index);
+  },
+)</pre>
+        </div>
+    </section>
+
+    <section id="common-use-cases">
+        <h2>Common Use Cases</h2>
+        
+        <div class="use-case">
+            <h3>1. Server-side Pagination</h3>
+            <pre class="code-sample">
+TableWidgetAppi(
+  headers: headers,
+  rows: currentPageData,
+  enablePagination: true,
+  totalRecords: totalRecords,
+  onPageChanged: (page, size) async {
+    final response = await fetchData(page, size);
+    setState(() => currentPageData = response.data);
+  },
+)</pre>
+        </div>
+
+        <div class="use-case">
+            <h3>2. Selectable Rows</h3>
+            <pre class="code-sample">
+TableWidgetAppi(
+  headers: headers,
+  rows: rows,
+  selectedRowColor: Colors.blue[50],
+  onRowTap: (index) {
+    setState(() => selectedIndex = index);
+  },
+)</pre>
+        </div>
+
+        <div class="use-case">
+            <h3>3. Custom Column Widths</h3>
+            <pre class="code-sample">
+TableWidgetAppi(
+  headers: ['Description', 'Amount', 'Date'],
+  rows: rows,
+  columnFlexValues: {
+    0: 3,  // Description takes more space
+    1: 1,  // Amount
+    2: 2,  // Date
+  },
+)</pre>
+        </div>
+    </section>
+
+    <section id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        
+        <div class="troubleshooting-item">
+            <h3>Table Not Scrolling</h3>
+            <p>If the table doesn't scroll vertically:</p>
+            <ul>
+                <li>Ensure maxHeight is set</li>
+                <li>Check if content exceeds maxHeight</li>
+                <li>Verify parent widget constraints</li>
+            </ul>
+        </div>
+
+        <div class="troubleshooting-item">
+            <h3>Pagination Issues</h3>
+            <p>If pagination isn't working correctly:</p>
+            <ul>
+                <li>Verify totalRecords is set correctly</li>
+                <li>Ensure onPageChanged is handling page changes</li>
+                <li>Check if server is returning correct data</li>
+            </ul>
+        </div>
+
+        <div class="troubleshooting-item">
+            <h3>Column Alignment</h3>
+            <p>If columns aren't aligned as expected:</p>
+            <ul>
+                <li>Check columnAlignments map indices</li>
+                <li>Verify columnFlexValues are appropriate</li>
+                <li>Ensure data types match header types</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="best-practices">
+        <h2>Best Practices</h2>
+        
+        <div class="best-practice">
+            <h3>Data Structure</h3>
+            <ul>
+                <li>Keep data types consistent within columns</li>
+                <li>Use null-safe values when possible</li>
+                <li>Format data before passing to table</li>
+            </ul>
+        </div>
+
+        <div class="best-practice">
+            <h3>Performance</h3>
+            <ul>
+                <li>Use server-side pagination for large datasets</li>
+                <li>Cache fetched data when appropriate</li>
+                <li>Optimize row height for content</li>
+            </ul>
+        </div>
+
+        <div class="best-practice">
+            <h3>User Experience</h3>
+            <ul>
+                <li>Provide meaningful header names</li>
+                <li>Use appropriate column widths</li>
+                <li>Include loading indicators during data fetch</li>
+                <li>Implement error handling for failed operations</li>
+            </ul>
+        </div>
+    </section>
+
+    <style>
+        :root {
+            --primary: #0091EA;
+            --primary-light: #E1F5FE;
+            --text: #1A1A1A;
+            --text-light: #666666;
+            --border: #E5E7EB;
+            --bg: #FFFFFF;
+            --bg-light: #F8FAFC;
+            --code-bg: #1E293B;
+            --code-text: #E2E8F0;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg-light);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
