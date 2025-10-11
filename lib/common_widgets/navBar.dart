@@ -10,6 +10,7 @@ import 'package:mix/mix.dart';
 
 class Navbar extends ConsumerStatefulWidget {
   final ValueChanged<String>? onSearchChanged;
+
   const Navbar({super.key, this.onSearchChanged});
 
   @override
@@ -53,23 +54,18 @@ class _NavbarState extends ConsumerState<Navbar> {
                       },
                       child: ref.watch(emailProvider) == "admin@appikorn.com"
                           ? Image.asset("assets/png/appikorn-logo.png",
-                              height: mediaQuery(context, 600) ? 30 : 50,
-                              width: mediaQuery(context, 600) ? 30 : 50)
+                              height: mediaQuery(context, 600) ? 30 : 50, width: mediaQuery(context, 600) ? 30 : 50)
                           : Image.asset("assets/png/schopiq_logo.png",
-                              height: mediaQuery(context, 600) ? 30 : 50,
-                              width: mediaQuery(context, 600) ? 30 : 50),
+                              height: mediaQuery(context, 600) ? 30 : 50, width: mediaQuery(context, 600) ? 30 : 50),
                     )),
-                if(!mediaQuery(context, 670))
-                      TextAppi(
-                        text: ref.watch(emailProvider) == "admin@appikorn.com"
-                            ? "Appikorn"
-                            : "Schopiq Automation",
-                        textStyle: Style(
-                          $text.style
-                              .fontSize(mediaQuery(context, 750) ? 17 : 20),
-                          $text.fontWeight(FontWeight.bold),
-                        ),
-                      )
+                if (!mediaQuery(context, 670))
+                  TextAppi(
+                    text: ref.watch(emailProvider) == "admin@appikorn.com" ? "Appikorn" : "Schopiq Automation",
+                    textStyle: Style(
+                      $text.style.fontSize(mediaQuery(context, 750) ? 17 : 20),
+                      $text.fontWeight(FontWeight.bold),
+                    ),
+                  )
               ],
             )),
 
@@ -102,8 +98,6 @@ class _NavbarState extends ConsumerState<Navbar> {
             //     ),
             //   ),
             // ),
-
-
 
             Expanded(
                 child: Row(
@@ -144,7 +138,12 @@ class _NavbarState extends ConsumerState<Navbar> {
                           Tooltip(
                             message: "Logout",
                             child: IconButton(
-                              onPressed: () => context.go("/"),
+                              onPressed: () {
+                                // Reset providers
+                                ref.read(emailProvider.notifier).update((_) => "");
+                                ref.read(passwordProvider.notifier).update((_) => "");
+                                context.go("/");
+                              },
                               icon: const Icon(Icons.logout),
                             ),
                           ),
@@ -163,8 +162,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                               children: [
                                 ListTile(
                                   leading: GestureDetector(
-                                      onTap: () => context.go("/contactus"),
-                                      child: Icon(Icons.support_agent)),
+                                      onTap: () => context.go("/contactus"), child: Icon(Icons.support_agent)),
                                   title: Text("Support"),
                                   onTap: () => context.go("/contactus"),
                                 ),
@@ -178,7 +176,6 @@ class _NavbarState extends ConsumerState<Navbar> {
                           );
                         },
                       ),
-
                   ],
                 )
               ],
@@ -243,9 +240,7 @@ Widget searchBox(
         hintText: 'Search for cards...',
         fillColor: Colors.white,
         prefixIcon: Padding(
-          padding: mediaQuery(context, 600)
-              ? EdgeInsets.zero
-              : EdgeInsets.only(right: 10, left: 15),
+          padding: mediaQuery(context, 600) ? EdgeInsets.zero : EdgeInsets.only(right: 10, left: 15),
           child: Icon(Icons.search),
         ),
         suffixIcon: IconButton(

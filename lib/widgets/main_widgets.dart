@@ -140,7 +140,7 @@ class _CardRowState extends ConsumerState<CardRow> {
   @override
   Widget build(BuildContext context) {
     final uploadedItems = ref.watch(uploadedItemsProvider);
-    final email = ref.read(emailProvider);
+    final email = ref.watch(emailProvider);
 
     final combinedItems = [
       ...allItems,
@@ -458,12 +458,13 @@ class AllCard extends ConsumerStatefulWidget {
 
 class _AllCardState extends ConsumerState<AllCard> {
   bool isHovering = false;
-  final email = emailProvider;
+
 
   @override
   Widget build(BuildContext context) {
     final image = widget.itemData["image"] ?? "";
     final title = widget.itemData["title"] ?? "";
+    final email = ref.watch(emailProvider); // Correct
 
     return MouseRegion(
       onEnter: (_) => setState(() => isHovering = true),

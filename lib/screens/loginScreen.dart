@@ -86,17 +86,17 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
     // TODO: implement initState
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(emailProvider.notifier).update((el) {
-        return "";
-      });
-      ref.read(passwordProvider.notifier).update((el) {
-        return "";
-      });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ref.read(emailProvider.notifier).update((el) {
+    //     return "";
+    //   });
+    //   ref.read(passwordProvider.notifier).update((el) {
+    //     return "";
+    //   });
       // ref.read(organisationNameProvider.notifier).update((el) {
       //   return "";
       // });
-    });
+    // });
   }
 
   @override

@@ -21,13 +21,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //   }
 // }
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 final emailProvider = StateProvider<String>((ref) => "");
 final passwordProvider = StateProvider<String>((ref) => "");
 final loginVerifyProvider = StateProvider<String?>((ref) => null);
 final organisationNameProvider = StateProvider<String>((ref) => "");
+
+final loginFormEmailProvider = StateProvider<String>((ref) => "");
+final loginFormPasswordProvider = StateProvider<String>((ref) => "");
+
 
 final isSendingProviderLogin = StateProvider<bool>((ref) => false);
 
