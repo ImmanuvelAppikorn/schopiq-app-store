@@ -59,7 +59,7 @@ class LoginPasswordWdg extends ConsumerWidget {
         }
         return null;
       },
-      onSaved: (val) => ref.read(passwordProvider.notifier).state = val ?? "",
+      onChanged: (val) => ref.read(passwordProvider.notifier).state = val ?? "",
     );
   }
 }
@@ -76,23 +76,30 @@ class LoginOrganizationNameWdg extends ConsumerWidget {
         TextAppi(
           text: "Organization Name",
           mandatory: true,
-          textStyle: Style(
-              $text.style.fontSize(13),
-              $text.style.fontWeight(FontWeight.w500),
-              $text.color(Colors.black)),
+          textStyle:
+              Style($text.style.fontSize(13), $text.style.fontWeight(FontWeight.w500), $text.color(Colors.black)),
         ),
         DropDownFieldAppi(
-          items: ["Schopiq(Admin)", "Appikorn", "Anoud", "Fresh&Honest"],
-          textFieldStyle: TextFieldParamsAppi(
-              widgetKey: GlobalKey<FormFieldState<String>>(),
-              hint: "Select Organization Name",
-              heading: "Organization Name",
-              initialValue: ref.read(organisationNameProvider),
-              mandatory: true,
-              headingPaddingDown: 5),
-          onChanged: (val) =>
-              ref.read(organisationNameProvider.notifier).state = val ?? "",
-        ),
+            items: ["Schopiq(Admin)", "Appikorn", "Anoud", "Fresh&Honest"],
+            textFieldStyle: TextFieldParamsAppi(
+                widgetKey: GlobalKey<FormFieldState<String>>(),
+                hint: "Select Organization Name",
+                heading: "Organization Name",
+                initialValue: ref.read(organisationNameProvider),
+                mandatory: true,
+                headingPaddingDown: 5),
+            onChanged: (val) {
+              ref.read(organisationNameProvider.notifier).state = val ?? "";
+
+              // ✅ Prefill Password
+              if (val == "Schopiq(Admin)") {
+                ref.read(passwordProvider.notifier).state = "2222";
+                ref.read(emailProvider.notifier).state = "a@gmail.com";
+              } else {
+                ref.read(passwordProvider.notifier).state = "1111";
+                ref.read(emailProvider.notifier).state = "a@gmail.com";
+              }
+            }),
       ],
     );
   }

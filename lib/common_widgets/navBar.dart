@@ -44,14 +44,14 @@ class _NavbarState extends ConsumerState<Navbar> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Tooltip(
-                    message: ref.watch(organisationNameProvider) == "Appikorn"
+                    message: ref.watch(emailProvider) == "admin@appikorn.com"
                         ? "Appikorn Software Consultancy"
                         : "Schopiq Automation",
                     child: GestureDetector(
                       onTap: () {
                         context.go("/main");
                       },
-                      child: ref.watch(organisationNameProvider) == "Appikorn"
+                      child: ref.watch(emailProvider) == "admin@appikorn.com"
                           ? Image.asset("assets/png/appikorn-logo.png",
                               height: mediaQuery(context, 600) ? 30 : 50,
                               width: mediaQuery(context, 600) ? 30 : 50)
@@ -61,7 +61,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                     )),
                 if(!mediaQuery(context, 670))
                       TextAppi(
-                        text: ref.watch(organisationNameProvider) == "Appikorn"
+                        text: ref.watch(emailProvider) == "admin@appikorn.com"
                             ? "Appikorn"
                             : "Schopiq Automation",
                         textStyle: Style(

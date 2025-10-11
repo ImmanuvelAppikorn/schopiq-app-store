@@ -18,48 +18,117 @@ class CardRow extends ConsumerStatefulWidget {
 }
 
 class _CardRowState extends ConsumerState<CardRow> {
-  String? hoveredText;
+  Map<String, dynamic>? selectedItem;
   int startIndex = 0;
 
-  void updateHoveredText(String? text) {
+  void updateSelectedItem(Map<String, dynamic> item) {
     setState(() {
-      hoveredText = text;
+      selectedItem = item;
     });
   }
 
-  final List<Map<String, String>> allItems = [
+  final List<Map<String, dynamic>> allItems = [
     {
       "title": "Beema Insurance",
       "image": "assets/png/beema.png",
-      "to": "https://github.com/ImmanSpark/Apk-Download/releases/download/v4.0.1/app-arm64-v8a-release.apk",
-      "onHoverText":
+      "description":
           "Beema is a modern insurance web application designed to simplify policy management, claims, and renewals with an intuitive user experience."
     },
     {
-      "title": "Kiosk",
+      "title": "MI3",
       "image": "assets/png/Fresh & Honest.png",
-      "onHoverText":
-          "Fresh & Honest has the MI series coffee machine platform designed for premium coffee dispensing with efficient KIOSK vending app solution and software support"
+      "description":
+          "Fresh & Honest MI3 coffee machine platform designed for premium coffee dispensing with efficient KIOSK vending app solution and software support."
     },
     {
       "title": "Wildbean",
       "image": "assets/png/wildbean.png",
-      "onHoverText":
+      "description":
           "Wild-Bean is an MI-2 coffee machine platform designed for smooth operation, beverage customization, and easy service management."
     },
     {
       "title": "Bestea",
       "image": "assets/png/Bestea.png",
-      "onHoverText":
+      "description":
           "BesTea is a refreshing tea brand website built to highlight unique blends, simplify ordering, and engage customers digitally."
     },
     {
       "title": "Lavazza",
       "image": "assets/png/Lavazza.png",
-      "onHoverText":
-          "We provide an IoT kit with a touchscreen interface for Lavazza black-and-white coffee machines, enabling smart control and real-time monitoring.."
+      "description":
+          "We provide an IoT kit with a touchscreen interface for Lavazza black-and-white coffee machines, enabling smart control and real-time monitoring."
     },
   ];
+
+  final beemaApkList = <Map<String, String>>[
+    {
+      "version_name": "V1.114.1",
+      "date_published": "July 30, 2025",
+      "latest": "false",
+      "mbSize": "95.1 MB",
+    },
+    {
+      "version_name": "V1.114.1",
+      "date_published": "July 30, 2025",
+      "latest": "true",
+      "to": "https://github.com/ImmanSpark/Apk-Download/releases/download/v4.0.1/app-arm64-v8a-release.apk",
+      "mbSize": "95.1 MB",
+    }
+  ];
+
+  final mi3ApkList = <Map<String, String>>[
+    {
+      "version_name": "V2.6.1",
+      "date_published": "Aug 1, 2025",
+      "latest": "true",
+      "mbSize": "70 MB",
+      "to": "https://github.com/ImmanuvelAppikorn/schopiq-app-store/releases/download/MI3/mi3-v2.6.1.apk",
+    }
+  ];
+
+  final wildbeanApkList = <Map<String, String>>[
+    {
+      "version_name": "V1.23.1",
+      "date_published": "Jan 13, 2025",
+      "latest": "true",
+      "mbSize": "60.3 MB",
+    }
+  ];
+
+  final besteaApkList = <Map<String, String>>[
+    {
+      "version_name": "V1.18.2",
+      "date_published": "May 11, 2025",
+      "latest": "true",
+      "mbSize": "55.67 MB",
+    }
+  ];
+
+  final lavazzaApkList = <Map<String, String>>[
+    {
+      "version_name": "V2.11.3",
+      "date_published": "Mar 18, 2025",
+      "latest": "true",
+      "mbSize": "40 MB",
+    }
+  ];
+
+  List<Map<String, dynamic>> getApkList(String title) {
+    switch (title.toLowerCase()) {
+      case "beema insurance":
+        return beemaApkList;
+      case "mi3":
+        return mi3ApkList;
+      case "wildbean":
+        return wildbeanApkList;
+      case "bestea":
+        return besteaApkList;
+      case "lavazza":
+        return lavazzaApkList;
+      default:
+        return [];
+    }
+  }
 
   int getVisibleCardCount(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -68,145 +137,373 @@ class _CardRowState extends ConsumerState<CardRow> {
     return 1;
   }
 
-  void _next(int visibleCount, int totalItems) {
-    if (startIndex + visibleCount < totalItems) {
-      setState(() {
-        startIndex++;
-        if (MediaQuery.of(context).size.width < 600) {
-          hoveredText = null; // reset text on mobile
-        }
-      });
-    }
-  }
-
-  void _prev() {
-    if (startIndex > 0) {
-      setState(() {
-        startIndex--;
-        if (MediaQuery.of(context).size.width < 600) {
-          hoveredText = null; // reset text on mobile
-        }
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final uploadedItems = ref.watch(uploadedItemsProvider);
-    final organizationName = ref.read(organisationNameProvider); // 👈 get from provider
+    final email = ref.read(emailProvider);
 
-    // Merge hardcoded and uploaded items
     final combinedItems = [
       ...allItems,
-      ...uploadedItems.map((item) => <String, String?>{
+      ...uploadedItems.map((item) => {
             "title": item.title,
             "image": item.imageFileName,
             "to": item.apkLink,
-            "onHoverText": item.description,
+            "description": item.description,
           }),
     ];
 
-    // Filter based on organization and search query
     final filteredItems = combinedItems.where((item) {
       final title = (item["title"] ?? "").toLowerCase();
-      final org = organizationName.toLowerCase();
+      final org = email.toLowerCase();
 
       bool matchesOrg = false;
-      if (org == "schopiq(admin)" || org == "appikorn") {
+      if (org == "admin@appikorn.com" || org == "admin@schopiq.com") {
         matchesOrg = true;
-      } else if (org == "fresh&honest") {
-        matchesOrg = ["kiosk", "wildbean", "lavazza"].contains(title);
-      } else if (org == "anoud") {
+      } else if (org == "fresh&honest@appikorn.com") {
+        matchesOrg = ["mi3", "wildbean", "lavazza"].contains(title);
+      } else if (org == "admin@anoud.com") {
         matchesOrg = title == "beema insurance";
       }
 
       final matchesSearch = title.contains(widget.searchQuery.toLowerCase());
-
-      // Return true if search matches, regardless of org
-      return matchesSearch; // <-- remove '&& matchesOrg' to allow search globally
+      return matchesSearch && matchesOrg;
     }).toList();
 
     final visibleCount = getVisibleCardCount(context);
     final visibleItems = filteredItems.skip(startIndex).take(visibleCount).toList();
+    final mobileScreen = mediaQuery(context, 700);
 
-    return Expanded(
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: SingleChildScrollView(
-          child: SizedBox(
-            width: double.infinity,
-            child: BoxAppi(
-              fillColor: Colors.transparent,
-              // image: ref.watch(organisationNameProvider) == "Appikorn"
-              //     ? "assets/jpg/purple55.jpg"
-              //     : "assets/jpg/schopiq11.jpg",
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                child: Column(
-                  children: [
-                    if (filteredItems.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: SizedBox(
-                          height: 255,
-                          child: Center(
-                            child: TextAppi(
-                              text: "No Card found",
-                              textStyle: Style(
-                                $text.fontSize(mediaQuery(context, 600) ? 14 : 18),
-                                $text.fontWeight(FontWeight.bold),
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+      child: BoxAppi(
+        fillColor: Colors.transparent,
+        child: Column(
+          children: [
+            if (filteredItems.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: SizedBox(
+                  height: 255,
+                  child: Center(
+                    child: TextAppi(
+                      text: "No Card found",
+                      textStyle: Style(
+                        $text.fontSize(mediaQuery(context, 600) ? 14 : 18),
+                        $text.fontWeight(FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (!mobileScreen) Flexible(flex: 2, child: SizedBox()),
+                  Flexible(
+                    flex: mediaQuery(context, 1100) ? 3 : 2,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: mediaQuery(context, 700) ? 320 : 550,
+                          child: mediaQuery(context, 700)
+                              ? Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        visibleItems.length == 1 ? MainAxisAlignment.center : MainAxisAlignment.start,
+                                    children: [
+                                      Column(
+                                        mainAxisAlignment: visibleItems.length == 1
+                                            ? MainAxisAlignment.center
+                                            : MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: visibleItems.map((item) {
+                                          return AllCard(
+                                            itemData: item,
+                                            onClickItem: updateSelectedItem,
+                                          );
+                                        }).toList(),
+                                      ),
+                                      // ✅ Buttons now belong to the same column as the cards
+                                      if (filteredItems.length > visibleCount &&
+                                          MediaQuery.of(context).size.width < 800)
+                                        Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              ElevatedButton(
+                                                style: ButtonStyle(
+                                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                                    (Set<MaterialState> states) {
+                                                      if (states.contains(MaterialState.disabled)) {
+                                                        // 👇 Color when disabled
+                                                        return Colors.grey.shade400;
+                                                      }
+                                                      // 👇 Normal color (when enabled)
+                                                      return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                          ? Color(0xffc47df3)
+                                                          : Color(0xff44dfe6);
+                                                    },
+                                                  ),
+                                                ),
+                                                onPressed: startIndex > 0
+                                                    ? () => setState(() {
+                                                          startIndex = (startIndex - getVisibleCardCount(context))
+                                                              .clamp(0, combinedItems.length);
+                                                          selectedItem = null;
+                                                        })
+                                                    : null,
+                                                child: Icon(
+                                                  Icons.arrow_back_ios,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 20),
+                                              ElevatedButton(
+                                                style: ButtonStyle(
+                                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                                    (Set<MaterialState> states) {
+                                                      if (states.contains(MaterialState.disabled)) {
+                                                        // 👇 Color when disabled
+                                                        return Colors.grey.shade400;
+                                                      }
+                                                      // 👇 Normal color (when enabled)
+                                                      return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                          ? Color(0xffc47df3)
+                                                          : Color(0xff44dfe6);
+                                                    },
+                                                  ),
+                                                ),
+                                                onPressed:
+                                                    startIndex + getVisibleCardCount(context) < filteredItems.length
+                                                        ? () => setState(() {
+                                                              startIndex += getVisibleCardCount(context);
+                                                              selectedItem = null;
+                                                            })
+                                                        : null,
+                                                child: Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                )
+                              : SingleChildScrollView(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      minHeight: mediaQuery(context, 600) ? 400 : 550,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Column(
+                                        mainAxisAlignment: visibleItems.length == 1
+                                            ? MainAxisAlignment.center
+                                            : MainAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment: visibleItems.length == 1
+                                                ? MainAxisAlignment.center
+                                                : MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            spacing: 20,
+                                            children: visibleItems.map((item) {
+                                              return AllCard(
+                                                itemData: item,
+                                                onClickItem: updateSelectedItem,
+                                              );
+                                            }).toList(),
+                                          ),
+                                          // ✅ Buttons now belong to the same column as the cards
+                                          if (filteredItems.length > visibleCount &&
+                                              MediaQuery.of(context).size.width < 800)
+                                            Padding(
+                                              padding: const EdgeInsets.all(10),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                                        (Set<MaterialState> states) {
+                                                          if (states.contains(MaterialState.disabled)) {
+                                                            // 👇 Color when disabled
+                                                            return Colors.grey.shade400;
+                                                          }
+                                                          // 👇 Normal color (when enabled)
+                                                          return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                              ? Color(0xffc47df3)
+                                                              : Color(0xff44dfe6);
+                                                        },
+                                                      ),
+                                                    ),
+                                                    onPressed: startIndex > 0
+                                                        ? () => setState(() {
+                                                              startIndex = (startIndex - getVisibleCardCount(context))
+                                                                  .clamp(0, combinedItems.length);
+                                                              selectedItem = null;
+                                                            })
+                                                        : null,
+                                                    child: Icon(
+                                                      Icons.arrow_back_ios,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 20),
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                                        (Set<MaterialState> states) {
+                                                          if (states.contains(MaterialState.disabled)) {
+                                                            // 👇 Color when disabled
+                                                            return Colors.grey.shade400;
+                                                          }
+                                                          // 👇 Normal color (when enabled)
+                                                          return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                              ? Color(0xffc47df3)
+                                                              : Color(0xff44dfe6);
+                                                        },
+                                                      ),
+                                                    ),
+                                                    onPressed:
+                                                        startIndex + getVisibleCardCount(context) < filteredItems.length
+                                                            ? () => setState(() {
+                                                                  startIndex += getVisibleCardCount(context);
+                                                                  selectedItem = null;
+                                                                })
+                                                            : null,
+                                                    child: Icon(
+                                                      Icons.arrow_forward_ios,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (!mobileScreen)
+                    Flexible(
+                      flex: mediaQuery(context, 1100) ? 4 : 6,
+                      child: Column(
+                        children: [
+                          ShowContainer(text: selectedItem?["description"]),
+                          const SizedBox(height: 15),
+                          if (selectedItem != null)
+                            SizedBox(
+                              width: mediaQuery(context, 600) ? 450 : 700,
+                              child: DynamicVersionBox(
+                                appItem: selectedItem!,
+                                apkList: getApkList(selectedItem!["title"] ?? ""),
                               ),
                             ),
-                          ),
-                        ),
-                      )
-                    else
-                      Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: mediaQuery(context, 600) ? 0 : 20),
-                            child: Row(
-                              spacing: 10,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Tooltip(
-                                  message: "Go to Prev Card",
-                                  child: IconButton(
-                                    icon: const Icon(Icons.arrow_left, size: 40),
-                                    onPressed: _prev,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: visibleItems.map((item) {
-                                      return AllCard(
-                                        image: item["image"]!,
-                                        title: item["title"]!,
-                                        to: item["to"],
-                                        hoverDescription: item["onHoverText"],
-                                        onHoverText: updateHoveredText,
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                                Tooltip(
-                                  message: "Go to Next Card",
-                                  child: IconButton(
-                                    icon: const Icon(Icons.arrow_right, size: 40),
-                                    onPressed: () => _next(visibleCount, filteredItems.length),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
-                    const SizedBox(height: 20),
-                    ShowContainer(text: hoveredText),
-                  ],
+                    ),
+                ],
+              ),
+            if (mobileScreen)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SizedBox(
+                  child: Column(
+                    children: [
+                      ShowContainer(text: selectedItem?["description"]),
+                      const SizedBox(height: 15),
+                      if (selectedItem != null)
+                        SizedBox(
+                          width: mediaQuery(context, 600) ? 450 : 700,
+                          child: DynamicVersionBox(
+                            appItem: selectedItem!,
+                            apkList: getApkList(selectedItem!["title"]),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AllCard extends ConsumerStatefulWidget {
+  final Map<String, dynamic> itemData;
+  final Function(Map<String, dynamic>) onClickItem;
+
+  const AllCard({
+    super.key,
+    required this.itemData,
+    required this.onClickItem,
+  });
+
+  @override
+  ConsumerState<AllCard> createState() => _AllCardState();
+}
+
+class _AllCardState extends ConsumerState<AllCard> {
+  bool isHovering = false;
+  final email = emailProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = widget.itemData["image"] ?? "";
+    final title = widget.itemData["title"] ?? "";
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovering = true),
+      onExit: (_) => setState(() => isHovering = false),
+      child: GestureDetector(
+        onTap: () => widget.onClickItem(widget.itemData),
+        child: BoxAppi(
+          radius: 20,
+          border: Border.all(color: Colors.grey.shade300),
+          shadowColor:
+              isHovering ? (email == "admin@appikorn.com" ? Color(0xffc47df3) : Color(0xff44dfe6)) : Colors.transparent,
+          shadowOffset: isHovering ? const Offset(4, 6) : Offset.zero,
+          shadowBlur: isHovering ? 4 : 0,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              children: [
+                image.startsWith("assets/")
+                    ? Image.asset(
+                        image,
+                        height: 150,
+                        width: 160,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
+                        image,
+                        height: 150,
+                        width: 160,
+                        fit: BoxFit.cover,
+                      ),
+                TextAppi(
+                  text: title,
+                  textStyle: Style(
+                    $text.fontSize(mediaQuery(context, 600) ? 16 : 20),
+                    $text.fontWeight(FontWeight.bold),
+                    $text.textAlign(TextAlign.center),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -223,29 +520,29 @@ class ShowContainer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        child: SizedBox(
-          height: mediaQuery(context, 600) ? 150 : 250,
-          width: mediaQuery(context, 600) ? 450 : 700,
-          child: BoxAppi(
-            shadowColor: Colors.black.withOpacity(0.3),
-            shadowBlur: 6,
-            shadowOffset: Offset(4, 4),
-            fillColor: ref.watch(organisationNameProvider) == "Appikorn" ? Color(0xffc888f3) : Color(0xff51e0e6),
-            radius: 30,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: BoxAppi(
-                radius: 30,
-                border: Border.all(color: Colors.grey.shade200),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: TextAppi(
-                      text: text ??
-                          (mediaQuery(context, 600) ? "Click a card to see details" : "Hover a card to see details"),
-                      textStyle: Style($text.fontSize(16), $text.textAlign(TextAlign.center)),
+      child: SizedBox(
+        height: mediaQuery(context, 600) ? 170 : 220,
+        width: mediaQuery(context, 600) ? 450 : 700,
+        child: BoxAppi(
+          shadowColor: Colors.black.withOpacity(0.3),
+          shadowBlur: 6,
+          shadowOffset: const Offset(4, 4),
+          fillColor:
+              ref.watch(emailProvider) == "admin@appikorn.com" ? Color(0xffc47df3) : Color(0xff44dfe6),
+          radius: 30,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: BoxAppi(
+              radius: 30,
+              border: Border.all(color: Colors.grey.shade200),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: TextAppi(
+                    text: text ?? "Click a card to see details",
+                    textStyle: Style(
+                      $text.fontSize(mediaQuery(context, 600) ? 14 : 16),
+                      $text.textAlign(TextAlign.center),
                     ),
                   ),
                 ),
@@ -258,153 +555,193 @@ class ShowContainer extends ConsumerWidget {
   }
 }
 
-class AllCard extends ConsumerStatefulWidget {
-  final String image;
-  final String title;
-  final String? to;
-  final String? hoverDescription;
-  final Function(String?)? onHoverText;
+class DynamicVersionBox extends ConsumerStatefulWidget {
+  final Map<String, dynamic> appItem;
+  final List<Map<String, dynamic>> apkList;
 
-  const AllCard({
+  const DynamicVersionBox({
     super.key,
-    required this.image,
-    required this.title,
-    this.to,
-    this.onHoverText,
-    this.hoverDescription,
+    required this.appItem,
+    required this.apkList,
   });
 
   @override
-  ConsumerState<AllCard> createState() => _AllCardState();
+  ConsumerState<DynamicVersionBox> createState() => _DynamicVersionBoxState();
 }
 
-class _AllCardState extends ConsumerState<AllCard> {
-  bool isHovering = false;
-  bool isButtonHovering = false;
-
+class _DynamicVersionBoxState extends ConsumerState<DynamicVersionBox> {
+  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    final organisationName = ref.watch(organisationNameProvider);
-
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() => isHovering = true);
-        widget.onHoverText?.call(widget.hoverDescription);
-      },
-      onExit: (_) {
-        setState(() => isHovering = false);
-        widget.onHoverText?.call(null);
-      },
-      child: BoxAppi(
-        radius: 20,
-        shadowColor: isHovering
-            ? (organisationName == "Appikorn" ? const Color(0xff9e6bc0) : const Color(0xff3faeb3))
-            : Colors.transparent,
-        shadowOffset: isHovering ? const Offset(4, 6) : Offset.zero,
-        shadowBlur: isHovering ? 2 : 0,
-        border: Border.all(color: Colors.grey.shade300),
-        child: MouseRegion(
-          onEnter: (_) {
-            if (!isMobile) {
-              setState(() => isHovering = true);
-              widget.onHoverText?.call(widget.hoverDescription);
-            }
-          },
-          onExit: (_) {
-            if (!isMobile) {
-              setState(() => isHovering = false);
-              widget.onHoverText?.call(null);
-            }
-          },
-          child: GestureDetector(
-            onTap: (){
-              // Update ShowContainer on mobile
-              if (isMobile) {
-                widget.onHoverText?.call(widget.hoverDescription);
-              }
-            },
-            child: SizedBox(
-              width: mediaQuery(context, 600) ? 140 : 200,
-              height: mediaQuery(context, 600) ? 205 : 282,
-              child: BoxAppi(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      BoxAppi(
-                        child: widget.image.startsWith("assets/")
-                            ? Image.asset(
-                                widget.image,
-                                height: mediaQuery(context, 600) ? 100 : 160,
-                                width: mediaQuery(context, 600) ? 100 : 170,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.network(
-                                widget.image,
-                                height: mediaQuery(context, 600) ? 100 : 170,
-                                width: mediaQuery(context, 600) ? 100 : 170,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      Center(
-                        child: TextAppi(
-                          text: widget.title,
-                          textStyle: Style(
-                            $text.fontSize(mediaQuery(context, 600) ? 16 : 20),
-                            $text.fontWeight(FontWeight.bold),
-                            $text.textAlign(TextAlign.center),
-                            $text.maxLines(1),
-                            $text.color(Colors.black),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: MouseRegion(
-                          onEnter: (_) => setState(() => isButtonHovering = true),
-                          onExit: (_) => setState(() => isButtonHovering = false),
-                          child: GestureDetector(
-                            onTap: () {
-                              if ((widget.to ?? '').isNotEmpty) {
-                                openUrl(widget.to!);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("No download available for this app")),
-                                );
-                              }
-                            },
-                            child: SizedBox(
-                              width: mediaQuery(context, 600) ? 85 : 120,
-                              child: BoxAppi(
-                                fillColor: organisationName == "Appikorn"
-                                    ? (isButtonHovering ? Color(0xff9e6bc0) : Color(0xffc888f3))
-                                    : (isButtonHovering ? Color(0xff3faeb3) : Color(0xff51e0e6)),
-                                height: mediaQuery(context, 600) ? 30 : 40,
-                                radius: 22,
-                                child: Center(
-                                  child: TextAppi(
-                                    text: "Download",
-                                    textStyle: Style(
-                                      $text.color(isButtonHovering ? Colors.white : Colors.black),
-                                      $text.fontSize(mediaQuery(context, 600) ? 13 : 15),
-                                      $text.fontWeight(FontWeight.w600),
-                                    ),
+    return BoxAppi(
+      radius: 4,
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () => setState(() => isExpanded = !isExpanded),
+            child: BoxAppi(
+              fillColor: Colors.grey.shade500,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextAppi(
+                      text: "All Versions available for ${widget.appItem["title"]}",
+                      textStyle: Style($text.fontSize(mediaQuery(context, 600) ? 12 : 14), $text.color(Colors.white)),
+                    ),
+                    Icon(
+                      isExpanded ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (isExpanded)
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: widget.apkList.map((apk) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            widget.appItem["image"].startsWith("assets/")
+                                ? Image.asset(
+                                    widget.appItem["image"],
+                                    fit: BoxFit.cover,
+                                    height: 50,
+                                    width: 50,
+                                  )
+                                : Image.network(
+                                    widget.appItem["image"],
+                                    fit: BoxFit.cover,
+                                    height: 50,
+                                    width: 50,
                                   ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    TextAppi(
+                                      text: apk["version_name"] ?? "",
+                                      textStyle: Style($text.fontWeight(FontWeight.bold)),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    BoxAppi(
+                                      borderThickness: 1,
+                                      borderColor: Colors.red,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(1),
+                                        child: TextAppi(
+                                          text: "Apk",
+                                          textStyle: Style($text.color(Colors.red)),
+                                        ),
+                                      ),
+                                    ),
+                                    if (apk["latest"] == "true") ...[
+                                      const SizedBox(width: 8),
+                                      BoxAppi(
+                                        borderThickness: 1,
+                                        borderColor: Colors.yellow[800],
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(1),
+                                          child: TextAppi(
+                                            text: "Latest",
+                                            textStyle: Style(
+                                              $text.color(Colors.yellow.shade800),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                Row(
+                                  children: [
+                                    TextAppi(
+                                      text: apk["date_published"] ?? "",
+                                    ),
+                                    const SizedBox(width: 8),
+                                    TextAppi(
+                                      text: apk["mbSize"] ?? "",
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        BoxAppi(
+                          fillColor: ref.watch(emailProvider) == "admin@appikorn.com" ? Color(0xffc47df3) : Color(0xff44dfe6),
+                          radius: 20,
+                          child: Padding(
+                            padding: EdgeInsets.only(right: mediaQuery(context, 400) ? 0 : 20),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () {
+                                  final link = apk["to"]?.toString() ?? "";
+                                  if (link.isNotEmpty) {
+                                    openUrl(link);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                        content: TextAppi(
+                                      text: "No Apk Found!",
+                                      textStyle: Style($text.fontSize(16)),
+                                    )));
+                                  }
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        final link = apk["to"]?.toString() ?? "";
+                                        if (link.isNotEmpty) {
+                                          openUrl(link);
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                              content: TextAppi(
+                                            text: "No Apk Found!",
+                                            textStyle: Style($text.fontSize(14)),
+                                          )));
+                                        }
+                                      },
+                                      icon: Icon(
+                                        Icons.download,
+                                        color: Colors.white,
+                                        size: 15,
+                                      ),
+                                    ),
+                                    if (!mediaQuery(context, 400))
+                                      TextAppi(
+                                        text: "Download",
+                                        textStyle: Style($text.color(Colors.white)),
+                                      )
+                                  ],
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                      ],
+                    ),
+                  );
+                }).toList(),
               ),
             ),
-          ),
-        ),
+        ],
       ),
     );
   }

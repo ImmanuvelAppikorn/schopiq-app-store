@@ -55,8 +55,8 @@ class ContactUsScreen extends ConsumerWidget {
                                   spacing: 5,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ref.watch(organisationNameProvider) ==
-                                            "Appikorn"
+                                    ref.watch(emailProvider) ==
+                                            "admin@appikorn.com"
                                         ? Image.asset(
                                             "assets/png/appikorn-logo.png",
                                             height: 60,
@@ -154,7 +154,7 @@ class ContactUsScreen extends ConsumerWidget {
                                                 .state = false;
                                           },
                                     child: BoxAppi(
-                                      fillColor: ref.watch(organisationNameProvider) == "Appikorn" ? Color(0xff9263b2) : Color(0xff3faeb3),
+                                      fillColor: ref.watch(emailProvider) == "admin@appikorn.com" ? Color(0xff9263b2) : Color(0xff3faeb3),
                                       radius: 10,
                                       height: 50,
                                       child: Center(

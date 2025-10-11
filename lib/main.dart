@@ -24,8 +24,7 @@ class MyApp extends StatelessWidget {
     final router = GoRouter(routes: [
       GoRoute(path: "/", builder: (context, state) => Loginscreen()),
       GoRoute(path: "/main", builder: (context, state) => MainScreen()),
-      GoRoute(
-          path: "/contactus", builder: (context, state) => ContactUsScreen()),
+      GoRoute(path: "/contactus", builder: (context, state) => ContactUsScreen()),
       GoRoute(path: "/upload", builder: (context, state) => Uploadscreen()),
     ]);
     return MaterialApp.router(

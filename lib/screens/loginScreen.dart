@@ -25,11 +25,11 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
   void verifyLogin(BuildContext context) {
     final email = ref.read(emailProvider);
     final password = ref.read(passwordProvider);
-    final organizationName = ref.read(organisationNameProvider);
+    // final organizationName = ref.read(organisationNameProvider);
 
     print("----------verify state---1 ---email :  $email --- password :  $password ");
 
-    if (email.isEmpty || password.isEmpty || organizationName.isEmpty) {
+    if (email.trim().isEmpty || password.trim().isEmpty) {
       ref.read(loginVerifyProvider.notifier).state = "notempty";
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill in all fields ⚠️")),
@@ -37,30 +37,42 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
       return; // stop here
     }
 
+    // ✅ Set default password based on organization
+    // if (organizationName == "Schopiq(Admin)") {
+    //   ref.read(passwordProvider.notifier).update((_) => "2222");
+    // } else {
+    //   ref.read(passwordProvider.notifier).update((_) => "1111");
+    // }
+
     // Check for Appikorn(Admin)
-    if (organizationName == "Schopiq(Admin)") {
-      if (password == "2222") {
-        ref.read(loginVerifyProvider.notifier).state = "success";
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login Successful ✅")),
-        );
-        context.push("/upload"); // redirect to UploadScreen
-      } else {
-        ref.read(loginVerifyProvider.notifier).state = "failed";
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Invalid Credentials for Schopiq(Admin) ❌")),
-        );
-      }
-      return; // stop further checks
-    }
+    // if (organizationName == "Schopiq(Admin)") {
+    //   if (password == "2222") {
+    //     ref.read(loginVerifyProvider.notifier).state = "success";
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       const SnackBar(content: Text("Login Successful ✅")),
+    //     );
+    //     context.push("/main"); // redirect to UploadScreen
+    //   } else {
+    //     ref.read(loginVerifyProvider.notifier).state = "failed";
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       const SnackBar(content: Text("Invalid Credentials for Schopiq(Admin) ❌")),
+    //     );
+    //   }
+    //   return; // stop further checks
+    // }
+
+    final emailTrimmed = email.trim().toLowerCase();
+    final passwordTrimmed = password.trim();
+
+    final allowedEmails = ["admin@appikorn.com", "admin@schopiq.com", "admin@anoud.com", "fresh&honest@appikorn.com"];
 
     // Check for normal user email login
-    if (email == "a@gmail.com" && password == "1111") {
+    if (allowedEmails.contains(emailTrimmed) && passwordTrimmed == "12345") {
       ref.read(loginVerifyProvider.notifier).state = "success";
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Login Successful ✅")),
       );
-      context.go("/main"); // redirect to MainScreen
+      context.go("/main");
     } else {
       ref.read(loginVerifyProvider.notifier).state = "failed";
       ScaffoldMessenger.of(context).showSnackBar(
@@ -81,9 +93,9 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
       ref.read(passwordProvider.notifier).update((el) {
         return "";
       });
-      ref.read(organisationNameProvider.notifier).update((el) {
-        return "";
-      });
+      // ref.read(organisationNameProvider.notifier).update((el) {
+      //   return "";
+      // });
     });
   }
 
@@ -119,7 +131,7 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
                             children: [
                               Column(
                                 children: [
-                                  ref.watch(organisationNameProvider) == "Appikorn"
+                                  ref.watch(emailProvider) == "admin@appikorn.com"
                                       ? Image.asset(
                                           "assets/png/appikorn-logo.png",
                                           height: 60,
@@ -131,7 +143,7 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
                                           width: 60,
                                         ),
                                   TextAppi(
-                                    text: "Welcome Back!",
+                                    text: "Welcome Guest!",
                                     textStyle: Style(
                                       $text.style.fontSize(30),
                                       $text.style.fontWeight(FontWeight.w600),
@@ -156,24 +168,27 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
                                 ],
                               ),
                               // Organization Name
-                              LoginOrganizationNameWdg(),
+                              // LoginOrganizationNameWdg(),
                               // Email
                               LoginEmailWdg(),
                               // Password
                               LoginPasswordWdg(),
                               // Login Button
-                              GestureDetector(
-                                onTap: () => verifyLogin(context),
-                                child: BoxAppi(
-                                  fillColor: ref.watch(organisationNameProvider) == "Appikorn"
-                                      ? Color(0xff9263b2)
-                                      : Color(0xff3faeb3),
-                                  radius: 10,
-                                  height: 50,
-                                  child: Center(
-                                    child: TextAppi(
-                                      text: "Login",
-                                      textStyle: Style($text.style.fontSize(16), $text.style.color(Colors.white)),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () => verifyLogin(context),
+                                  child: BoxAppi(
+                                    fillColor: ref.watch(emailProvider) == "admin@appikorn.com"
+                                        ? Color(0xff9263b2)
+                                        : Color(0xff3faeb3),
+                                    radius: 10,
+                                    height: 50,
+                                    child: Center(
+                                      child: TextAppi(
+                                        text: "Login",
+                                        textStyle: Style($text.style.fontSize(16), $text.style.color(Colors.white)),
+                                      ),
                                     ),
                                   ),
                                 ),

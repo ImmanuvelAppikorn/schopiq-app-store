@@ -1,7 +1,10 @@
+import 'package:appikorn_madix_widgets/text_appi/text_appi.dart';
 import 'package:appikorn_software/provider/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:appikorn_software/common_widgets/navBar.dart';
+import 'package:mix/mix.dart';
+import '../core/common_functions.dart';
 import '../widgets/main_widgets.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
@@ -14,6 +17,7 @@ class MainScreen extends ConsumerStatefulWidget {
 class _MainScreenState extends ConsumerState<MainScreen> {
   String searchQuery = "";
   bool isSearchBoxVisible = false;
+
 
   void updateSearch(String query) {
     setState(() {
@@ -47,7 +51,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Widget build(BuildContext context) {
     // Watch the provider here
     final bgImage =
-        ref.watch(organisationNameProvider) == "Appikorn" ? "assets/jpg/purple55.jpg" : "assets/jpg/schopiq34.jpg";
+        ref.watch(emailProvider) == "admin@appikorn.com" ? "assets/jpg/purple55.jpg" : "assets/jpg/schopiq34.jpg";
 
     return Scaffold(
       body: Container(
@@ -59,32 +63,47 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Navbar(onSearchChanged: handleSearchChanged),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Navbar(onSearchChanged: handleSearchChanged),
 
-            // Search box below navbar only if visible
-            isSearchBoxVisible
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: searchBox(
-                      context,
-                      () {
-                        setState(() {
-                          isSearchBoxVisible = false;
-                          searchQuery = "";
-                        });
-                      },
-                      handleSearchChanged,
+              // Search box below navbar only if visible
+              isSearchBoxVisible
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: searchBox(
+                        context,
+                        () {
+                          setState(() {
+                            isSearchBoxVisible = false;
+                            searchQuery = "";
+                          });
+                        },
+                        handleSearchChanged,
+                      ),
+                    )
+                  : Padding(
+                      padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+                      child: TextAppi(
+                        text:
+                            "All your software applications, in one place - ready to explore, download, and boost your productivity.",
+                        textStyle: Style(
+                          $text.fontSize(mediaQuery(context, 600) ? 14 : 16),
+                          $text.fontWeight(FontWeight.w600),
+                          $text.textAlign(TextAlign.center),
+                        ),
+                      ),
                     ),
-                  )
-                : SizedBox(
-                    height: 40,
-                  ),
 
-            CardRow(key: ValueKey(searchQuery), searchQuery: searchQuery),
-          ],
+              CardRow(key: ValueKey(searchQuery), searchQuery: searchQuery),
+              if (mediaQuery(context, 700))
+                SizedBox(
+                  height: 60,
+                )
+            ],
+          ),
         ),
       ),
     );
