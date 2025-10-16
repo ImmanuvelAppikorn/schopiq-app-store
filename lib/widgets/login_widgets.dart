@@ -12,15 +12,14 @@ class LoginEmailWdg extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return TextFieldAppi(
       widgetKey: emailKey,
-      hint: "Enter Email",
+      hint: "Enter User ID",
       headingPaddingDown: 5,
-      heading: "Email",
+      heading: "User ID",
       mandatory: true,
-      email: true,
       initialValue: ref.watch(emailProvider),
       validator: (s) {
         if ((s ?? '').isEmpty) {
-          return "Email can't be empty";
+          return "User ID can't be empty";
         }
         return null;
       },

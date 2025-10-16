@@ -157,11 +157,11 @@ class _CardRowState extends ConsumerState<CardRow> {
       final org = email.toLowerCase();
 
       bool matchesOrg = false;
-      if (org == "admin@appikorn.com" || org == "admin@schopiq.com") {
+      if (org == "admin@appikorn" || org == "admin@schopiq") {
         matchesOrg = true;
-      } else if (org == "fresh&honest@appikorn.com") {
+      } else if (org == "admin@fhcl") {
         matchesOrg = ["mi3", "wildbean", "lavazza"].contains(title);
-      } else if (org == "admin@anoud.com") {
+      } else if (org == "admin@anoud") {
         matchesOrg = title == "beema insurance";
       }
 
@@ -243,7 +243,7 @@ class _CardRowState extends ConsumerState<CardRow> {
                                                         return Colors.grey.shade400;
                                                       }
                                                       // 👇 Normal color (when enabled)
-                                                      return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                      return ref.watch(emailProvider) == "admin@appikorn"
                                                           ? Color(0xffc47df3)
                                                           : Color(0xff44dfe6);
                                                     },
@@ -271,7 +271,7 @@ class _CardRowState extends ConsumerState<CardRow> {
                                                         return Colors.grey.shade400;
                                                       }
                                                       // 👇 Normal color (when enabled)
-                                                      return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                      return ref.watch(emailProvider) == "admin@appikorn"
                                                           ? Color(0xffc47df3)
                                                           : Color(0xff44dfe6);
                                                     },
@@ -314,9 +314,21 @@ class _CardRowState extends ConsumerState<CardRow> {
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             spacing: 20,
                                             children: visibleItems.map((item) {
-                                              return AllCard(
-                                                itemData: item,
-                                                onClickItem: updateSelectedItem,
+                                              return Column(
+                                                children: [
+                                                  AllCard(
+                                                    itemData: item,
+                                                    onClickItem: updateSelectedItem,
+                                                  ),
+                                                  if (mobileScreen)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(top: 10),
+                                                      child: DynamicVersionBox(
+                                                        appItem: item,
+                                                        apkList: getApkList(item["title"]),
+                                                      ),
+                                                    ),
+                                                ],
                                               );
                                             }).toList(),
                                           ),
@@ -337,7 +349,7 @@ class _CardRowState extends ConsumerState<CardRow> {
                                                             return Colors.grey.shade400;
                                                           }
                                                           // 👇 Normal color (when enabled)
-                                                          return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                          return ref.watch(emailProvider) == "admin@appikorn"
                                                               ? Color(0xffc47df3)
                                                               : Color(0xff44dfe6);
                                                         },
@@ -365,7 +377,7 @@ class _CardRowState extends ConsumerState<CardRow> {
                                                             return Colors.grey.shade400;
                                                           }
                                                           // 👇 Normal color (when enabled)
-                                                          return ref.watch(emailProvider) == "admin@appikorn.com"
+                                                          return ref.watch(emailProvider) == "admin@appikorn"
                                                               ? Color(0xffc47df3)
                                                               : Color(0xff44dfe6);
                                                         },
@@ -404,7 +416,7 @@ class _CardRowState extends ConsumerState<CardRow> {
                           const SizedBox(height: 15),
                           if (selectedItem != null)
                             SizedBox(
-                              width: mediaQuery(context, 600) ? 450 : 700,
+                              width: mediaQuery(context, 600) ? 450 : 500,
                               child: DynamicVersionBox(
                                 appItem: selectedItem!,
                                 apkList: getApkList(selectedItem!["title"] ?? ""),
@@ -417,20 +429,28 @@ class _CardRowState extends ConsumerState<CardRow> {
               ),
             if (mobileScreen)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 child: SizedBox(
                   child: Column(
                     children: [
                       ShowContainer(text: selectedItem?["description"]),
                       const SizedBox(height: 15),
-                      if (selectedItem != null)
-                        SizedBox(
-                          width: mediaQuery(context, 600) ? 450 : 700,
-                          child: DynamicVersionBox(
-                            appItem: selectedItem!,
-                            apkList: getApkList(selectedItem!["title"]),
-                          ),
-                        ),
+                      // if (selectedItem != null)
+                      //   SizedBox(
+                      //     width: mediaQuery(context, 600) ? 450 : 500,
+                      //     child: DynamicVersionBox(
+                      //       appItem: selectedItem!,
+                      //       apkList: getApkList(selectedItem!["title"]),
+                      //     ),
+                      //   ),
+                      // ✅ On mobile, show all DynamicVersionBox always under each card
+                      ...visibleItems.map((item) => Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: DynamicVersionBox(
+                              appItem: item,
+                              apkList: getApkList(item["title"]),
+                            ),
+                          )),
                     ],
                   ),
                 ),
@@ -459,7 +479,6 @@ class AllCard extends ConsumerStatefulWidget {
 class _AllCardState extends ConsumerState<AllCard> {
   bool isHovering = false;
 
-
   @override
   Widget build(BuildContext context) {
     final image = widget.itemData["image"] ?? "";
@@ -475,7 +494,7 @@ class _AllCardState extends ConsumerState<AllCard> {
           radius: 20,
           border: Border.all(color: Colors.grey.shade300),
           shadowColor:
-              isHovering ? (email == "admin@appikorn.com" ? Color(0xffc47df3) : Color(0xff44dfe6)) : Colors.transparent,
+              isHovering ? (email == "admin@appikorn" ? Color(0xffc47df3) : Color(0xff44dfe6)) : Colors.transparent,
           shadowOffset: isHovering ? const Offset(4, 6) : Offset.zero,
           shadowBlur: isHovering ? 4 : 0,
           child: Padding(
@@ -520,32 +539,49 @@ class ShowContainer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final containerHeight = mediaQuery(context, 600) ? 110.0 : 150.0;
+    final containerWidth = mediaQuery(context, 600) ? 450.0 : 500.0;
+
     return Center(
       child: SizedBox(
-        height: mediaQuery(context, 600) ? 170 : 220,
-        width: mediaQuery(context, 600) ? 450 : 700,
+        height: containerHeight,
+        width: containerWidth,
         child: BoxAppi(
           shadowColor: Colors.black.withOpacity(0.3),
           shadowBlur: 6,
           shadowOffset: const Offset(4, 4),
-          fillColor:
-              ref.watch(emailProvider) == "admin@appikorn.com" ? Color(0xffc47df3) : Color(0xff44dfe6),
+          fillColor: ref.watch(emailProvider) == "admin@appikorn"
+              ? const Color(0xffc47df3)
+              : const Color(0xff44dfe6),
           radius: 30,
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: BoxAppi(
               radius: 30,
               border: Border.all(color: Colors.grey.shade200),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextAppi(
-                    text: text ?? "Click a card to see details",
-                    textStyle: Style(
-                      $text.fontSize(mediaQuery(context, 600) ? 14 : 16),
-                      $text.textAlign(TextAlign.center),
-                    ),
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight, // fill vertical space
+                        ),
+                        child: Align(
+                          alignment: Alignment.center, // vertical & horizontal center
+                          child: TextAppi(
+                            text: text ?? "Click a card to see details",
+                            textStyle: Style(
+                              $text.fontSize(mediaQuery(context, 600) ? 14 : 16),
+                              $text.textAlign(TextAlign.center),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -555,6 +591,7 @@ class ShowContainer extends ConsumerWidget {
     );
   }
 }
+
 
 class DynamicVersionBox extends ConsumerStatefulWidget {
   final Map<String, dynamic> appItem;
@@ -571,7 +608,7 @@ class DynamicVersionBox extends ConsumerStatefulWidget {
 }
 
 class _DynamicVersionBoxState extends ConsumerState<DynamicVersionBox> {
-  bool isExpanded = false;
+  bool isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -684,7 +721,8 @@ class _DynamicVersionBoxState extends ConsumerState<DynamicVersionBox> {
                           ],
                         ),
                         BoxAppi(
-                          fillColor: ref.watch(emailProvider) == "admin@appikorn.com" ? Color(0xffc47df3) : Color(0xff44dfe6),
+                          fillColor:
+                              ref.watch(emailProvider) == "admin@appikorn" ? Color(0xffc47df3) : Color(0xff44dfe6),
                           radius: 20,
                           child: Padding(
                             padding: EdgeInsets.only(right: mediaQuery(context, 400) ? 0 : 20),
@@ -699,7 +737,7 @@ class _DynamicVersionBoxState extends ConsumerState<DynamicVersionBox> {
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                         content: TextAppi(
                                       text: "No Apk Found!",
-                                      textStyle: Style($text.fontSize(16)),
+                                      textStyle: Style($text.fontSize(15)),
                                     )));
                                   }
                                 },
@@ -715,7 +753,7 @@ class _DynamicVersionBoxState extends ConsumerState<DynamicVersionBox> {
                                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                               content: TextAppi(
                                             text: "No Apk Found!",
-                                            textStyle: Style($text.fontSize(14)),
+                                            textStyle: Style($text.fontSize(15)),
                                           )));
                                         }
                                       },

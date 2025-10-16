@@ -45,14 +45,14 @@ class _NavbarState extends ConsumerState<Navbar> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Tooltip(
-                    message: ref.watch(emailProvider) == "admin@appikorn.com"
+                    message: ref.watch(emailProvider) == "admin@appikorn"
                         ? "Appikorn Software Consultancy"
                         : "Schopiq Automation",
                     child: GestureDetector(
                       onTap: () {
                         context.go("/main");
                       },
-                      child: ref.watch(emailProvider) == "admin@appikorn.com"
+                      child: ref.watch(emailProvider) == "admin@appikorn"
                           ? Image.asset("assets/png/appikorn-logo.png",
                               height: mediaQuery(context, 600) ? 30 : 50, width: mediaQuery(context, 600) ? 30 : 50)
                           : Image.asset("assets/png/schopiq_logo.png",
@@ -60,7 +60,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                     )),
                 if (!mediaQuery(context, 670))
                   TextAppi(
-                    text: ref.watch(emailProvider) == "admin@appikorn.com" ? "Appikorn" : "Schopiq Automation",
+                    text: ref.watch(emailProvider) == "admin@appikorn" ? "Appikorn" : "Schopiq Automation",
                     textStyle: Style(
                       $text.style.fontSize(mediaQuery(context, 750) ? 17 : 20),
                       $text.fontWeight(FontWeight.bold),

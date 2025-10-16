@@ -51,7 +51,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Widget build(BuildContext context) {
     // Watch the provider here
     final bgImage =
-        ref.watch(emailProvider) == "admin@appikorn.com" ? "assets/jpg/purple55.jpg" : "assets/jpg/schopiq34.jpg";
+        ref.watch(emailProvider) == "admin@appikorn" ? "assets/jpg/purple55.jpg" : "assets/jpg/schopiq34.jpg";
 
     return Scaffold(
       body: Container(
@@ -85,16 +85,39 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ),
                     )
                   : Padding(
-                      padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
-                      child: TextAppi(
+                      padding: EdgeInsets.symmetric(vertical: mediaQuery(context, 600)? 15 : 25, horizontal: 20),
+                      child:      mediaQuery(context, 700) ?  Column(
+                        spacing: 6,
+                        children: [
+
+                          TextAppi(
+                            text:
+                                "All your software applications, in one place",
+                            textStyle: Style(
+                              $text.fontSize(mediaQuery(context, 600) ? 16 : 18),
+                              $text.fontWeight(FontWeight.w600),
+                              $text.textAlign(TextAlign.center),
+                            ),
+                          ),
+                          TextAppi(
+                            text:
+                            "Ready to explore, download, and boost your productivity.",
+                            textStyle: Style(
+                              $text.fontSize(mediaQuery(context, 600) ? 14 : 16),
+                              $text.fontWeight(FontWeight.w400),
+                              $text.textAlign(TextAlign.center),
+                            ),
+                          )
+                        ],
+                      ) : TextAppi(
                         text:
-                            "All your software applications, in one place - ready to explore, download, and boost your productivity.",
+                        "All your software applications, in one place - Ready to explore, download, and boost your productivity.",
                         textStyle: Style(
-                          $text.fontSize(mediaQuery(context, 600) ? 14 : 16),
+                          $text.fontSize(mediaQuery(context, 600) ? 12 : 14),
                           $text.fontWeight(FontWeight.w600),
                           $text.textAlign(TextAlign.center),
                         ),
-                      ),
+                      )
                     ),
 
               CardRow(key: ValueKey(searchQuery), searchQuery: searchQuery),

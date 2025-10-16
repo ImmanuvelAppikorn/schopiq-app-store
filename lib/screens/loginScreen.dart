@@ -1,18 +1,12 @@
 import 'package:appikorn_madix_widgets/box_appi/box_appi.dart';
-import 'package:appikorn_madix_widgets/drop_down_field_appi/drop_down_field_appi.dart';
 import 'package:appikorn_madix_widgets/text_appi/text_appi.dart';
-import 'package:appikorn_madix_widgets/text_field_appi/text_field_appi.dart';
 import 'package:appikorn_software/core/common_functions.dart';
 import 'package:appikorn_software/provider/login_provider.dart';
-import 'package:appikorn_software/screens/signupScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mix/mix.dart';
-
 import '../widgets/login_widgets.dart';
-import 'mainScreen.dart';
 
 class Loginscreen extends ConsumerStatefulWidget {
   const Loginscreen({super.key});
@@ -64,10 +58,11 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
     final emailTrimmed = email.trim().toLowerCase();
     final passwordTrimmed = password.trim();
 
-    final allowedEmails = ["admin@appikorn.com", "admin@schopiq.com", "admin@anoud.com", "fresh&honest@appikorn.com"];
+    final allowedEmails = ["admin@appikorn", "admin@schopiq", "admin@anoud", "admin@fhcl"];
 
     // Check for normal user email login
     if (allowedEmails.contains(emailTrimmed) && passwordTrimmed == "12345") {
+
       ref.read(loginVerifyProvider.notifier).state = "success";
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Login Successful ✅")),
@@ -131,7 +126,7 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
                             children: [
                               Column(
                                 children: [
-                                  ref.watch(emailProvider) == "admin@appikorn.com"
+                                  ref.watch(emailProvider) == "admin@appikorn"
                                       ? Image.asset(
                                           "assets/png/appikorn-logo.png",
                                           height: 60,
@@ -179,7 +174,7 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
                                 child: GestureDetector(
                                   onTap: () => verifyLogin(context),
                                   child: BoxAppi(
-                                    fillColor: ref.watch(emailProvider) == "admin@appikorn.com"
+                                    fillColor: ref.watch(emailProvider) == "admin@appikorn"
                                         ? Color(0xff9263b2)
                                         : Color(0xff3faeb3),
                                     radius: 10,
