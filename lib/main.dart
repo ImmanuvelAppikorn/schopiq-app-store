@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        fontFamily: 'Axiforma',
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: Colors.grey.shade500),
           fillColor: Colors.white,

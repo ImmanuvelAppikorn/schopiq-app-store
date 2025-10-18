@@ -76,7 +76,7 @@ class ContactUsScreen extends ConsumerWidget {
                                     ),
                                     TextAppi(
                                       text:
-                                          "Share your feedback or questions about the MadX app, and our team will reach out to you soon.",
+                                          "Share your feedback or queries about our software applications and our team will reach out to you soon.",
                                       textStyle: Style(
                                         $text.style.fontSize(14),
                                         $text.textAlign(TextAlign.start),

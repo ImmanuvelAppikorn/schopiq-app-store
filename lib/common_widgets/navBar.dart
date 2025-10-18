@@ -58,14 +58,28 @@ class _NavbarState extends ConsumerState<Navbar> {
                           : Image.asset("assets/png/schopiq_logo.png",
                               height: mediaQuery(context, 600) ? 30 : 50, width: mediaQuery(context, 600) ? 30 : 50),
                     )),
-                if (!mediaQuery(context, 670))
-                  TextAppi(
-                    text: ref.watch(emailProvider) == "admin@appikorn" ? "Appikorn" : "Schopiq Automation",
-                    textStyle: Style(
-                      $text.style.fontSize(mediaQuery(context, 750) ? 17 : 20),
-                      $text.fontWeight(FontWeight.bold),
-                    ),
-                  )
+
+                SizedBox(
+                  width: 3,
+                ),
+                // if (!mediaQuery(context, 670))
+                TextAppi(
+                  text: ref.watch(emailProvider) == "admin@appikorn" ? "Appikorn" : "Schopiq Automation",
+                  textStyle: Style(
+                    $text.style.fontSize(mediaQuery(context, 370)
+                        ? 9
+                        : mediaQuery(context, 400)
+                            ? 12
+                            : mediaQuery(context, 430)
+                                ? 13
+                                : mediaQuery(context, 500)
+                                    ? 14
+                                    : mediaQuery(context, 750)
+                                        ? 17
+                                        : 20),
+                    $text.fontWeight(FontWeight.bold),
+                  ),
+                )
               ],
             )),
 
@@ -114,6 +128,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                         child: IconButton(
                           icon: Icon(
                             Icons.search,
+                            color: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab),
                             size: mediaQuery(context, 600) ? 18 : 26,
                           ),
                           onPressed: () {
@@ -128,13 +143,18 @@ class _NavbarState extends ConsumerState<Navbar> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Tooltip(
-                            message: "Contact Us",
+                            message: "Support Us",
                             child: IconButton(
                               onPressed: () => context.go("/contactus"),
-                              icon: Icon(Icons.support_agent),
+                              icon: Icon(
+                                Icons.support_agent,
+                                color: ref.watch(emailProvider) == "admin@appikorn"
+                                    ? Color(0xff9263b2)
+                                    : Color(0xff2dacab),
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Tooltip(
                             message: "Logout",
                             child: IconButton(
@@ -144,7 +164,12 @@ class _NavbarState extends ConsumerState<Navbar> {
                                 ref.read(passwordProvider.notifier).update((_) => "");
                                 context.go("/");
                               },
-                              icon: const Icon(Icons.logout),
+                              icon: Icon(
+                                Icons.logout,
+                                color: ref.watch(emailProvider) == "admin@appikorn"
+                                    ? Color(0xff9263b2)
+                                    : Color(0xff2dacab),
+                              ),
                             ),
                           ),
                         ],
@@ -153,7 +178,10 @@ class _NavbarState extends ConsumerState<Navbar> {
                     // Small screen: menu button
                     if (isSmallScreen)
                       IconButton(
-                        icon: const Icon(Icons.menu),
+                        icon: Icon(
+                          Icons.menu,
+                          color: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab),
+                        ),
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
@@ -162,13 +190,28 @@ class _NavbarState extends ConsumerState<Navbar> {
                               children: [
                                 ListTile(
                                   leading: GestureDetector(
-                                      onTap: () => context.go("/contactus"), child: Icon(Icons.support_agent)),
-                                  title: Text("Support"),
+                                      onTap: () => context.go("/contactus"),
+                                      child: Icon(
+                                        Icons.support_agent,
+                                        color: ref.watch(emailProvider) == "admin@appikorn"
+                                            ? Color(0xff9263b2)
+                                            : Color(0xff2dacab),
+                                      )),
+                                  title: Text(
+                                    "Support",
+                                  ),
                                   onTap: () => context.go("/contactus"),
                                 ),
                                 ListTile(
-                                  leading: const Icon(Icons.logout),
-                                  title: const Text("Logout"),
+                                  leading: Icon(
+                                    Icons.logout,
+                                    color: ref.watch(emailProvider) == "admin@appikorn"
+                                        ? Color(0xff9263b2)
+                                        : Color(0xff2dacab),
+                                  ),
+                                  title: Text(
+                                    "Logout",
+                                  ),
                                   onTap: () => context.go("/"),
                                 ),
                               ],
@@ -215,7 +258,10 @@ class _SearchToggleWidgetState extends ConsumerState<SearchToggleWidget> {
             widget.onSearchChanged,
           ) // pass toggle to search box
         : IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(
+              Icons.search,
+              color: Color(0xff44dfe6),
+            ),
             onPressed: toggleSearchBox,
           );
   }
@@ -229,34 +275,50 @@ Widget searchBox(
   final bool isSmall = MediaQuery.of(context).size.width < 1140;
   final bool isMobile = MediaQuery.of(context).size.width < 660;
 
-  return SizedBox(
-    width: 280,
-    height: 40,
-    child: TextField(
-      onChanged: (val) {
-        onSearchChanged?.call(val);
-      },
-      decoration: InputDecoration(
-        hintText: 'Search for cards...',
-        fillColor: Colors.white,
-        prefixIcon: Padding(
-          padding: mediaQuery(context, 600) ? EdgeInsets.zero : EdgeInsets.only(right: 10, left: 15),
-          child: Icon(Icons.search),
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: onClose, // closes the search box
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+  return Consumer(builder: (context, ref, child) {
+    return BoxAppi(
+      radius: 6,
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: SizedBox(
+          width: 280,
+          height: 40,
+          child: BoxAppi(
+            borderColor: Colors.black,
+            radius: 6,
+            child: TextField(
+              onChanged: (val) {
+                onSearchChanged?.call(val);
+              },
+              decoration: InputDecoration(
+                hintText: 'Search for apps...',
+                fillColor: Colors.white,
+                prefixIcon: Padding(
+                  padding: mediaQuery(context, 600) ? EdgeInsets.zero : EdgeInsets.only(right: 10, left: 15),
+                  child: Icon(Icons.search,
+                      color: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab)),
+                ),
+                suffixIcon: BoxAppi(
+                  fillColor: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab),
+                  child: IconButton(
+                    icon: Icon(Icons.close, color: Colors.white),
+                    onPressed: onClose, // closes the search box
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black),
+            ),
+          ),
         ),
       ),
-      style: const TextStyle(fontSize: 14, color: Colors.black),
-    ),
-  );
+    );
+  });
 }

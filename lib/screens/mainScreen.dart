@@ -18,7 +18,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   String searchQuery = "";
   bool isSearchBoxVisible = false;
 
-
   void updateSearch(String query) {
     setState(() {
       searchQuery = query.toLowerCase();
@@ -50,18 +49,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     // Watch the provider here
-    final bgImage =
-        ref.watch(emailProvider) == "admin@appikorn" ? "assets/jpg/purple55.jpg" : "assets/jpg/schopiq34.jpg";
+    // final bgImage =
+    //     ref.watch(emailProvider) == "admin@appikorn" ? "assets/jpg/purple55.jpg" : "assets/jpg/schopiq34.jpg";
 
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(bgImage),
-            fit: BoxFit.cover,
-          ),
+          color: Color(0xffF5F6FA)
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -85,46 +81,36 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ),
                     )
                   : Padding(
-                      padding: EdgeInsets.symmetric(vertical: mediaQuery(context, 600)? 15 : 25, horizontal: 20),
-                      child:      mediaQuery(context, 700) ?  Column(
+                      // padding: EdgeInsets.symmetric(vertical: mediaQuery(context, 600) ? 15 : 25, horizontal: 20),
+                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         spacing: 6,
                         children: [
-
+                          SizedBox(height: 4,),
                           TextAppi(
-                            text:
-                                "All your software applications, in one place",
+                            text: "All your software applications, in one place",
                             textStyle: Style(
-                              $text.fontSize(mediaQuery(context, 600) ? 16 : 18),
+                              $text.fontSize(mediaQuery(context, 600) ? 20 : 26),
                               $text.fontWeight(FontWeight.w600),
                               $text.textAlign(TextAlign.center),
+                              $text.fontFamily("Axiforma")
                             ),
                           ),
+                          SizedBox(height: 1,),
                           TextAppi(
-                            text:
-                            "Ready to explore, download, and boost your productivity.",
+                            text: "Ready to explore, download, and boost your productivity.",
                             textStyle: Style(
-                              $text.fontSize(mediaQuery(context, 600) ? 14 : 16),
+                              $text.fontSize(mediaQuery(context, 600) ? 12 : 14),
                               $text.fontWeight(FontWeight.w400),
                               $text.textAlign(TextAlign.center),
+                                $text.fontFamily("Axiforma")
                             ),
                           )
                         ],
-                      ) : TextAppi(
-                        text:
-                        "All your software applications, in one place - Ready to explore, download, and boost your productivity.",
-                        textStyle: Style(
-                          $text.fontSize(mediaQuery(context, 600) ? 12 : 14),
-                          $text.fontWeight(FontWeight.w600),
-                          $text.textAlign(TextAlign.center),
-                        ),
-                      )
-                    ),
+                      )),
 
               CardRow(key: ValueKey(searchQuery), searchQuery: searchQuery),
-              if (mediaQuery(context, 700))
-                SizedBox(
-                  height: 60,
-                )
             ],
           ),
         ),
