@@ -1,3 +1,4 @@
+import 'package:appikorn_software/provider/login_provider.dart';
 import 'package:appikorn_software/screens/contactUsScreen.dart';
 import 'package:appikorn_software/screens/loginScreen.dart';
 import 'package:appikorn_software/screens/mainScreen.dart';
@@ -7,13 +8,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'model/login.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Ensures all platform plugins (like shared_preferences) are ready
+  await SharedPreferences.getInstance();
+
   usePathUrlStrategy();
-  // Load .env file from assets (works for web)
   await dotenv.load(fileName: "assets/env/.env");
-  runApp(ProviderScope(child: MyApp()));
+
+  final container = ProviderContainer();
+  await hydrateLoginProvider(container);
+  runApp(UncontrolledProviderScope(container: container, child: MyApp()));
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -53,4 +65,28 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> hydrateLoginProvider(ProviderContainer container) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  final email = prefs.getString('login_email') ?? '';
+  final password = prefs.getString('login_password') ?? '';
+
+  container.read(loginModelProvider.notifier).state = LoginModel(
+    email: email,
+    password: password,
+  );
+}
+
+Future<void> saveLoginData(String email, String password) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('login_email', email);
+  await prefs.setString('login_password', password);
+}
+
+Future<void> clearLoginData() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('login_email');
+  await prefs.remove('login_password');
 }

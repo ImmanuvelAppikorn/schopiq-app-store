@@ -10,13 +10,15 @@ class LoginEmailWdg extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     return TextFieldAppi(
       widgetKey: emailKey,
       hint: "Enter User ID",
       headingPaddingDown: 5,
       heading: "User ID",
       mandatory: true,
-      initialValue: ref.watch(emailProvider),
+      initialValue: login.email,
       validator: (s) {
         if ((s ?? '').isEmpty) {
           return "User ID can't be empty";
@@ -25,7 +27,11 @@ class LoginEmailWdg extends ConsumerWidget {
       },
       height: 30,
       maxLines: 1,
-      onSaved: (val) => ref.read(emailProvider.notifier).state = val ?? "",
+      onSaved: (val) {
+        if (val != null) {
+          ref.read(loginModelProvider.notifier).updateEmail(val);
+        }
+      },
     );
   }
 }
@@ -37,13 +43,15 @@ class LoginPasswordWdg extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     return TextFieldAppi(
       widgetKey: passwordKey,
       hint: "Enter Password",
       heading: "Password",
       mandatory: true,
       headingPaddingDown: 5,
-      initialValue: ref.watch(passwordProvider),
+      initialValue: login.password,
       height: 30,
       password: true,
       maxLines: 1,
@@ -53,7 +61,11 @@ class LoginPasswordWdg extends ConsumerWidget {
         }
         return null;
       },
-      onChanged: (val) => ref.read(passwordProvider.notifier).state = val ?? "",
+      onChanged: (val) {
+        if(val!=null){
+          ref.read(loginModelProvider.notifier).updatePassword(val);
+        }
+      }
     );
   }
 }

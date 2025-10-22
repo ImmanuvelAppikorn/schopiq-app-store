@@ -20,9 +20,24 @@ class Navbar extends ConsumerStatefulWidget {
 class _NavbarState extends ConsumerState<Navbar> {
   bool isHovering = false;
 
+  void safeLogout(BuildContext context, WidgetRef ref) {
+    // 1️⃣ Clear local prefs
+    ref.read(loginModelProvider.notifier).clearPrefs();
+
+    // 2️⃣ Schedule provider invalidation and navigation in the next frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+
+      // Navigate safely
+      context.go("/");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width < 660;
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     return BoxAppi(
       // fillColor: Colors.grey,
       borderRadius: BorderRadius.only(
@@ -45,14 +60,12 @@ class _NavbarState extends ConsumerState<Navbar> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Tooltip(
-                    message: ref.watch(emailProvider) == "admin@appikorn"
-                        ? "Appikorn Software Consultancy"
-                        : "Schopiq Automation",
+                    message: isAppikorn ? "Appikorn Software Consultancy" : "Schopiq Automation",
                     child: GestureDetector(
                       onTap: () {
                         context.go("/main");
                       },
-                      child: ref.watch(emailProvider) == "admin@appikorn"
+                      child: isAppikorn
                           ? Image.asset("assets/png/appikorn-logo.png",
                               height: mediaQuery(context, 600) ? 30 : 50, width: mediaQuery(context, 600) ? 30 : 50)
                           : Image.asset("assets/png/schopiq_logo.png",
@@ -64,7 +77,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                 ),
                 // if (!mediaQuery(context, 670))
                 TextAppi(
-                  text: ref.watch(emailProvider) == "admin@appikorn" ? "Appikorn" : "Schopiq Automation",
+                  text: isAppikorn ? "Appikorn" : "Schopiq Automation",
                   textStyle: Style(
                     $text.style.fontSize(mediaQuery(context, 370)
                         ? 9
@@ -128,7 +141,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                         child: IconButton(
                           icon: Icon(
                             Icons.search,
-                            color: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab),
+                            color: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab),
                             size: mediaQuery(context, 600) ? 18 : 26,
                           ),
                           onPressed: () {
@@ -148,9 +161,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                               onPressed: () => context.go("/contactus"),
                               icon: Icon(
                                 Icons.support_agent,
-                                color: ref.watch(emailProvider) == "admin@appikorn"
-                                    ? Color(0xff9263b2)
-                                    : Color(0xff2dacab),
+                                color: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab),
                               ),
                             ),
                           ),
@@ -158,17 +169,10 @@ class _NavbarState extends ConsumerState<Navbar> {
                           Tooltip(
                             message: "Logout",
                             child: IconButton(
-                              onPressed: () {
-                                // Reset providers
-                                ref.read(emailProvider.notifier).update((_) => "");
-                                ref.read(passwordProvider.notifier).update((_) => "");
-                                context.go("/");
-                              },
+                              onPressed: () => safeLogout(context, ref),
                               icon: Icon(
                                 Icons.logout,
-                                color: ref.watch(emailProvider) == "admin@appikorn"
-                                    ? Color(0xff9263b2)
-                                    : Color(0xff2dacab),
+                                color: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab),
                               ),
                             ),
                           ),
@@ -180,7 +184,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                       IconButton(
                         icon: Icon(
                           Icons.menu,
-                          color: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab),
+                          color: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab),
                         ),
                         onPressed: () {
                           showModalBottomSheet(
@@ -193,9 +197,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                                       onTap: () => context.go("/contactus"),
                                       child: Icon(
                                         Icons.support_agent,
-                                        color: ref.watch(emailProvider) == "admin@appikorn"
-                                            ? Color(0xff9263b2)
-                                            : Color(0xff2dacab),
+                                        color: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab),
                                       )),
                                   title: Text(
                                     "Support",
@@ -203,17 +205,14 @@ class _NavbarState extends ConsumerState<Navbar> {
                                   onTap: () => context.go("/contactus"),
                                 ),
                                 ListTile(
-                                  leading: Icon(
-                                    Icons.logout,
-                                    color: ref.watch(emailProvider) == "admin@appikorn"
-                                        ? Color(0xff9263b2)
-                                        : Color(0xff2dacab),
-                                  ),
-                                  title: Text(
-                                    "Logout",
-                                  ),
-                                  onTap: () => context.go("/"),
-                                ),
+                                    leading: Icon(
+                                      Icons.logout,
+                                      color: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab),
+                                    ),
+                                    title: Text(
+                                      "Logout",
+                                    ),
+                                    onTap: () => safeLogout(context, ref)),
                               ],
                             ),
                           );
@@ -276,6 +275,8 @@ Widget searchBox(
   final bool isMobile = MediaQuery.of(context).size.width < 660;
 
   return Consumer(builder: (context, ref, child) {
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     return BoxAppi(
       radius: 6,
       child: Padding(
@@ -295,11 +296,10 @@ Widget searchBox(
                 fillColor: Colors.white,
                 prefixIcon: Padding(
                   padding: mediaQuery(context, 600) ? EdgeInsets.zero : EdgeInsets.only(right: 10, left: 15),
-                  child: Icon(Icons.search,
-                      color: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab)),
+                  child: Icon(Icons.search, color: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab)),
                 ),
                 suffixIcon: BoxAppi(
-                  fillColor: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2dacab),
+                  fillColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2dacab),
                   child: IconButton(
                     icon: Icon(Icons.close, color: Colors.white),
                     onPressed: onClose, // closes the search box

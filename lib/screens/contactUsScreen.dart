@@ -16,6 +16,8 @@ class ContactUsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final contactController = ContactUsController();
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     print('main body....');
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -55,8 +57,7 @@ class ContactUsScreen extends ConsumerWidget {
                                   spacing: 5,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ref.watch(emailProvider) ==
-                                            "admin@appikorn"
+                                    isAppikorn
                                         ? Image.asset(
                                             "assets/png/appikorn-logo.png",
                                             height: 60,
@@ -154,7 +155,7 @@ class ContactUsScreen extends ConsumerWidget {
                                                 .state = false;
                                           },
                                     child: BoxAppi(
-                                      fillColor: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff3faeb3),
+                                      fillColor: isAppikorn ? Color(0xff9263b2) : Color(0xff3faeb3),
                                       radius: 10,
                                       height: 50,
                                       child: Center(

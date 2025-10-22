@@ -163,6 +163,8 @@ class _UploadImageState extends ConsumerState<UploadImage> {
   @override
   Widget build(BuildContext context) {
     final value = ref.watch(uploadProvider.select((el) => el.uploadImage));
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     return GestureDetector(
       onTap: pickPngFile,
       child: Container(
@@ -178,7 +180,7 @@ class _UploadImageState extends ConsumerState<UploadImage> {
               ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children:  [
-              Icon(Icons.image, size: 40, color: ref.watch(organisationNameProvider) == "Appikorn" ? Color(0xff9263b2) : Color(0xff3faeb3)),
+              Icon(Icons.image, size: 40, color: isAppikorn ? Color(0xff9263b2) : Color(0xff3faeb3)),
               SizedBox(height: 8),
               Text("Click to upload PNG image", style: TextStyle(fontSize: 16, color: Colors.black)),
               Text("(Only .png files allowed)", style: TextStyle(fontSize: 12, color: Colors.grey)),

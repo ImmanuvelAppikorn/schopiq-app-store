@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mix/mix.dart';
+import '../controller/LoginController.dart';
 import '../widgets/login_widgets.dart';
 
 class Loginscreen extends ConsumerStatefulWidget {
@@ -16,86 +17,23 @@ class Loginscreen extends ConsumerStatefulWidget {
 }
 
 class _LoginscreenState extends ConsumerState<Loginscreen> {
-  void verifyLogin(BuildContext context) {
-    final email = ref.read(emailProvider);
-    final password = ref.read(passwordProvider);
-    // final organizationName = ref.read(organisationNameProvider);
-
-    print("----------verify state---1 ---email :  $email --- password :  $password ");
-
-    if (email.trim().isEmpty || password.trim().isEmpty) {
-      ref.read(loginVerifyProvider.notifier).state = "notempty";
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields ⚠️")),
-      );
-      return; // stop here
-    }
-
-    // ✅ Set default password based on organization
-    // if (organizationName == "Schopiq(Admin)") {
-    //   ref.read(passwordProvider.notifier).update((_) => "2222");
-    // } else {
-    //   ref.read(passwordProvider.notifier).update((_) => "1111");
-    // }
-
-    // Check for Appikorn(Admin)
-    // if (organizationName == "Schopiq(Admin)") {
-    //   if (password == "2222") {
-    //     ref.read(loginVerifyProvider.notifier).state = "success";
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(content: Text("Login Successful ✅")),
-    //     );
-    //     context.push("/main"); // redirect to UploadScreen
-    //   } else {
-    //     ref.read(loginVerifyProvider.notifier).state = "failed";
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(content: Text("Invalid Credentials for Schopiq(Admin) ❌")),
-    //     );
-    //   }
-    //   return; // stop further checks
-    // }
-
-    final emailTrimmed = email.trim().toLowerCase();
-    final passwordTrimmed = password.trim();
-
-    final allowedEmails = ["admin@appikorn", "admin@schopiq", "admin@anoud", "admin@fhcl"];
-
-    // Check for normal user email login
-    if (allowedEmails.contains(emailTrimmed) && passwordTrimmed == "12345") {
-
-      ref.read(loginVerifyProvider.notifier).state = "success";
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Login Successful ✅")),
-      );
-      context.go("/main");
-    } else {
-      ref.read(loginVerifyProvider.notifier).state = "failed";
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid Credentials ❌")),
-      );
-    }
-  }
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   ref.read(emailProvider.notifier).update((el) {
-    //     return "";
-    //   });
-    //   ref.read(passwordProvider.notifier).update((el) {
-    //     return "";
-    //   });
-      // ref.read(organisationNameProvider.notifier).update((el) {
-      //   return "";
-      // });
-    // });
   }
+
 
   @override
   Widget build(BuildContext context) {
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
+    final loginController = LoginController();
+    final formKey = ref.watch(loginFormKeyProvider);
+
+
+
     return Scaffold(
       resizeToAvoidBottomInset: true, // lets Scaffold resize for keyboard
       body: SafeArea(
@@ -126,7 +64,7 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
                             children: [
                               Column(
                                 children: [
-                                  ref.watch(emailProvider) == "admin@appikorn"
+                                  isAppikorn
                                       ? Image.asset(
                                           "assets/png/appikorn-logo.png",
                                           height: 60,
@@ -165,29 +103,49 @@ class _LoginscreenState extends ConsumerState<Loginscreen> {
                               // Organization Name
                               // LoginOrganizationNameWdg(),
                               // Email
-                              LoginEmailWdg(),
-                              // Password
-                              LoginPasswordWdg(),
-                              // Login Button
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: () => verifyLogin(context),
-                                  child: BoxAppi(
-                                    fillColor: ref.watch(emailProvider) == "admin@appikorn"
-                                        ? Color(0xff9263b2)
-                                        : Color(0xff3faeb3),
-                                    radius: 10,
-                                    height: 50,
-                                    child: Center(
-                                      child: TextAppi(
-                                        text: "Login",
-                                        textStyle: Style($text.style.fontSize(16), $text.style.color(Colors.white)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              Form(
+                                  key: formKey,
+                                  child: Column(
+                                    children: [
+                                      LoginEmailWdg(),
+                                      // Password
+                                      LoginPasswordWdg(),
+                                      // Login Button
+                                      Consumer(builder: (context, ref, child) {
+                                        final isSending = ref.watch(isSendingLoginProvider);
+
+                                        return GestureDetector(
+                                          onTap: isSending
+                                              ? null
+                                              : () async {
+                                                  ref.read(isSendingLoginProvider.notifier).state = true;
+
+                                                  await loginController.handleSubmit(context, ref);
+
+                                                  ref.read(isSendingLoginProvider.notifier).state = false;
+                                                },
+                                          child: BoxAppi(
+                                            fillColor: isAppikorn ? Color(0xff9263b2) : Color(0xff3faeb3),
+                                            // customize color conditionally if needed
+                                            radius: 10,
+                                            height: 50,
+                                            child: Center(
+                                              child: isSending
+                                                  ? CircularProgressIndicator(
+                                                      color: Colors.white,
+                                                      strokeWidth: 2,
+                                                    )
+                                                  : TextAppi(
+                                                      text: "Login",
+                                                      textStyle: Style(
+                                                          $text.style.fontSize(16), $text.style.color(Colors.white)),
+                                                    ),
+                                            ),
+                                          ),
+                                        );
+                                      })
+                                    ],
+                                  ))
                             ],
                           ),
                         )),

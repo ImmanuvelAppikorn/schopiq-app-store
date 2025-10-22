@@ -4,7 +4,9 @@ import 'package:appikorn_software/core/common_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mix/mix.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -145,7 +147,7 @@ class _CardRowState extends ConsumerState<CardRow> {
   @override
   Widget build(BuildContext context) {
     final uploadedItems = ref.watch(uploadedItemsProvider);
-    final email = ref.watch(emailProvider);
+    final login = ref.watch(loginModelProvider);
 
     final combinedItems = [
       ...allItems,
@@ -160,7 +162,7 @@ class _CardRowState extends ConsumerState<CardRow> {
     final filteredItems = combinedItems.where((item) {
       final title = (item["title"] ?? "").toLowerCase();
 
-      final org = email.toLowerCase();
+      final org = login.email.toLowerCase();
 
       bool matchesOrg = false;
       if (org == "admin@appikorn" || org == "admin@schopiq") {
@@ -190,12 +192,39 @@ class _CardRowState extends ConsumerState<CardRow> {
                 child: SizedBox(
                   height: 255,
                   child: Center(
-                    child: TextAppi(
-                      text: "Currently there are no application available, Try login after sometime!",
-                      textStyle: Style(
-                        $text.fontSize(mediaQuery(context, 600) ? 14 : 18),
-                        $text.fontWeight(FontWeight.bold),
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // SizedBox(
+                        //   height: 120,
+                        //   child:  BoxAppi(
+                        //     radius: 10,
+                        //     border: Border.all(color: Colors.black.withOpacity(0.2)),
+                        //     child: Padding(
+                        //       padding: const EdgeInsets.all(10),
+                        //       child: Lottie.asset(
+                        //         'assets/Loading.json',
+                        //         fit: BoxFit.contain,
+                        //         repeat: true,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        SvgPicture.asset(
+                          "assets/svg/empty-box.svg",
+                          height: 80,
+                          width: 80,
+                        ),
+                        // ref.watch(emailProvider) == "admin@appikorn"
+                        //     ? SvgPicture.asset("assets/svg/empty-box-purple.svg")
+                        //     : SvgPicture.asset("assets/svg/empty-box-blue.svg"),
+                        SizedBox(height: 20),
+                        TextAppi(
+                          text: "Currently there are no application available, Try login after sometime!",
+                          textStyle: Style($text.fontSize(mediaQuery(context, 600) ? 14 : 18),
+                              $text.fontWeight(FontWeight.bold), $text.textAlign(TextAlign.center)),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -321,7 +350,8 @@ class _AllCardState extends ConsumerState<AllCard> {
   Widget build(BuildContext context) {
     final image = widget.itemData["image"] ?? "";
     final title = widget.itemData["title"] ?? "";
-    final email = ref.watch(emailProvider); // Correct
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     final apkList = widget.apkList;
 
     final latestApk = apkList.firstWhere(
@@ -397,7 +427,7 @@ class _AllCardState extends ConsumerState<AllCard> {
                               link: _layerLink,
                               child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: ref.watch(emailProvider) == "admin@appikorn" ? Color(0xff9263b2) : Color(0xff2daba8),
+                                    backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(6), // radius of 20 for rounded corners
                                     ),
@@ -464,6 +494,8 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = mediaQuery(context, 600);
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
 
     String tooltipMessage = "This APK version includes the latest features and bug fixes.\n"
         "Make sure to update to stay compatible with other services.\n"
@@ -471,9 +503,7 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
 
     Widget tooltipIcon = Icon(
       Icons.info,
-      color: ref.watch(emailProvider) == "admin@appikorn"
-          ? const Color(0xff9263b2)
-          : const Color(0xff2daba8),
+      color: isAppikorn ? const Color(0xff9263b2) : const Color(0xff2daba8),
       size: isMobile ? 17 : 20,
     );
 
@@ -508,8 +538,7 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
               SizedBox(
                 height: isMobile ? 120 : 150,
                 child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context)
-                      .copyWith(scrollbars: false),
+                  behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                   child: SingleChildScrollView(
                     child: Column(
                       spacing: 10,
@@ -524,23 +553,19 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                 children: [
                                   TextAppi(
                                     text: apk["version_name"] ?? "",
-                                    textStyle:
-                                    Style($text.fontSize(isMobile ? 13 : 15)),
+                                    textStyle: Style($text.fontSize(isMobile ? 13 : 15)),
                                   ),
                                   if (apk["latest"] == "true")
                                     BoxAppi(
                                       borderThickness: 1,
                                       borderColor: Colors.yellow[800],
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 1, horizontal: 1),
+                                        padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 1),
                                         child: TextAppi(
                                           text: "Latest",
                                           textStyle: Style(
-                                            $text.color(
-                                                Colors.yellow.shade800),
-                                            $text.fontSize(
-                                                isMobile ? 12 : 14),
+                                            $text.color(Colors.yellow.shade800),
+                                            $text.fontSize(isMobile ? 12 : 14),
                                           ),
                                         ),
                                       ),
@@ -549,14 +574,13 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                   // Tooltip section (cleaned)
                                   Tooltip(
                                     message: tooltipMessage,
-                                    waitDuration:
-                                    const Duration(milliseconds: 200),
-                                    showDuration:
-                                    const Duration(seconds: 4),
+                                    waitDuration: const Duration(milliseconds: 200),
+                                    showDuration: const Duration(seconds: 4),
                                     preferBelow: false,
                                     triggerMode: isMobile
                                         ? TooltipTriggerMode.longPress // 👈 mobile long press
-                                        : TooltipTriggerMode.tap,       // 👈 desktop tap
+                                        : TooltipTriggerMode.tap,
+                                    // 👈 desktop tap
                                     child: tooltipIcon,
                                   ),
                                 ],
@@ -579,10 +603,9 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                             msg: "Download started in browser",
                                             toastLength: Toast.LENGTH_SHORT,
                                             gravity: ToastGravity.TOP,
-                                            backgroundColor:
-                                            const Color(0xff2daba8),
+                                            backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
                                             textColor: Colors.white,
-                                            webBgColor: "#2daba8",
+                                            webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
                                             webPosition: "center",
                                             timeInSecForIosWeb: 2,
                                             fontSize: 14.0,
@@ -599,8 +622,7 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                             msg: "Downloaded to $savePath",
                                             toastLength: Toast.LENGTH_SHORT,
                                             gravity: ToastGravity.TOP,
-                                            backgroundColor:
-                                            const Color(0xff2daba8),
+                                            backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
                                             textColor: Colors.white,
                                             timeInSecForIosWeb: 2,
                                             fontSize: 14.0,
@@ -611,10 +633,9 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                           msg: "Downloaded",
                                           toastLength: Toast.LENGTH_SHORT,
                                           gravity: ToastGravity.TOP,
-                                          backgroundColor:
-                                          const Color(0xff2daba8),
+                                          backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
                                           textColor: Colors.white,
-                                          webBgColor: "#2daba8",
+                                          webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
                                           webPosition: "center",
                                           timeInSecForIosWeb: 2,
                                           fontSize: 14.0,
@@ -632,6 +653,7 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                           timeInSecForIosWeb: 2,
                                           fontSize: 14.0,
                                         );
+
                                         print("Download error: $e");
                                       }
                                     } else {
@@ -639,10 +661,9 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                         msg: "No APK Found",
                                         toastLength: Toast.LENGTH_SHORT,
                                         gravity: ToastGravity.TOP,
-                                        backgroundColor:
-                                        const Color(0xff2daba8),
+                                        backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
                                         textColor: Colors.white,
-                                        webBgColor: "#2daba8",
+                                        webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
                                         webPosition: "center",
                                         timeInSecForIosWeb: 2,
                                         fontSize: isMobile ? 10.0 : 14.0,
@@ -654,11 +675,7 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                                     height: isMobile ? 17 : 20,
                                     width: isMobile ? 17 : 20,
                                     child: BoxAppi(
-                                      fillColor:
-                                      ref.watch(emailProvider) ==
-                                          "admin@appikorn"
-                                          ? const Color(0xff9263b2)
-                                          : const Color(0xff2daba8),
+                                      fillColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
                                       child: Icon(
                                         Icons.download,
                                         size: isMobile ? 14 : 16,

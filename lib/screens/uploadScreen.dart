@@ -27,6 +27,8 @@ class Uploadscreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final login = ref.watch(loginModelProvider);
+    final isAppikorn = login.email == "admin@appikorn";
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
@@ -60,7 +62,7 @@ class Uploadscreen extends ConsumerWidget {
                                   spacing: 5,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ref.watch(organisationNameProvider) == "Appikorn"
+                                    isAppikorn
                                         ? Image.asset(
                                             "assets/png/appikorn-logo.png",
                                             height: 60,
@@ -158,7 +160,7 @@ class Uploadscreen extends ConsumerWidget {
                                             context.go("/main");
                                           },
                                     child: BoxAppi(
-                                      fillColor: ref.watch(organisationNameProvider) == "Appikorn" ? Color(0xff9263b2) : Color(0xff3faeb3),
+                                      fillColor: isAppikorn ? Color(0xff9263b2) : Color(0xff3faeb3),
                                       radius: 10,
                                       height: 50,
                                       child: Center(

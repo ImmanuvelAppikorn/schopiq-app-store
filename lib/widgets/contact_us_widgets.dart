@@ -106,27 +106,36 @@ class PhoneNumberWdg extends ConsumerWidget {
   }
 }
 
-class ServiceWdg extends ConsumerWidget {
+class ServiceWdg extends ConsumerStatefulWidget {
   const ServiceWdg({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ServiceWdg> createState() => _ServiceWdgState();
+}
+
+class _ServiceWdgState extends ConsumerState<ServiceWdg> {
+  final GlobalKey<FormFieldState<String>> serviceFieldKey = GlobalKey<FormFieldState<String>>();
+
+  @override
+  Widget build(BuildContext context) {
     var value = ref.watch(contactUsProvider.select((el) => el.service));
+
     return Column(
       spacing: 5,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextAppi(
-          text: "Service",
-          mandatory: true,
+          text: " ",
+          // mandatory: true,
           textStyle:
-              Style($text.style.fontSize(14), $text.style.fontWeight(FontWeight.w500), $text.color(Colors.black)),
+          Style($text.style.fontSize(14), $text.style.fontWeight(FontWeight.w500), $text.color(Colors.black)),
         ),
         DropDownFieldAppi(
-          key: GlobalKey<FormFieldState<String>>(),
+          key: serviceFieldKey,
           items: ["Web Development", "UI/UX Design", "Consulting", "iOS Application", "Cloud Service"],
           textFieldStyle: TextFieldParamsAppi(
-            widgetKey: GlobalKey<FormFieldState<String>>(),
+            lable: "Service",
+            widgetKey: serviceFieldKey, // Use same key instance here
             validator: (s) {
               if ((s ?? '').isEmpty) {
                 return "Service can't be empty";
@@ -141,12 +150,14 @@ class ServiceWdg extends ConsumerWidget {
           ),
           onChanged: (s) {
             ref.read(contactUsProvider.notifier).update(ContactUsModel(service: s));
+            serviceFieldKey.currentState?.validate(); // force validation on change (optional)
           },
         ),
       ],
     );
   }
 }
+
 
 class MessageWdg extends ConsumerWidget {
   const MessageWdg({super.key});
