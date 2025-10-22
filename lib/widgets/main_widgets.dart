@@ -491,6 +491,10 @@ class VersionBox extends ConsumerStatefulWidget {
 }
 
 class _VersionBoxState extends ConsumerState<VersionBox> {
+  // Keep track of hovered row by index
+  int? hoveringIndex;
+
+
   @override
   Widget build(BuildContext context) {
     bool isMobile = mediaQuery(context, 600);
@@ -542,150 +546,185 @@ class _VersionBoxState extends ConsumerState<VersionBox> {
                   child: SingleChildScrollView(
                     child: Column(
                       spacing: 10,
-                      children: widget.apkList.map((apk) {
-                        return Container(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                spacing: 8,
-                                children: [
-                                  TextAppi(
-                                    text: apk["version_name"] ?? "",
-                                    textStyle: Style($text.fontSize(isMobile ? 13 : 15)),
+                      children: widget.apkList.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        Map<String, String> apk = entry.value;
+
+                        bool isHovering = hoveringIndex == index;
+                        return MouseRegion(
+                          onEnter: (_) {
+                            if (!isMobile) {
+                              setState(() {
+                                hoveringIndex = index;
+                              });
+                            }
+                          },
+                          onExit: (_) {
+                            if (!isMobile) {
+                              setState(() {
+                                hoveringIndex = null;
+                              });
+                            }
+                          },
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isHovering ? Colors.grey.withOpacity(0.2) : Colors.transparent,
+                                borderRadius: isHovering ? BorderRadius.circular(6) : BorderRadius.circular(0),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey,
+                                    width: 0.4,
                                   ),
-                                  if (apk["latest"] == "true")
-                                    BoxAppi(
-                                      borderThickness: 1,
-                                      borderColor: Colors.yellow[800],
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 1),
-                                        child: TextAppi(
-                                          text: "Latest",
-                                          textStyle: Style(
-                                            $text.color(Colors.yellow.shade800),
-                                            $text.fontSize(isMobile ? 12 : 14),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      spacing: 8,
+                                      children: [
+                                        TextAppi(
+                                          text: apk["version_name"] ?? "",
+                                          textStyle: Style($text.fontSize(isMobile ? 13 : 15)),
+                                        ),
+                                        if (apk["latest"] == "true")
+                                          BoxAppi(
+                                            borderThickness: 1,
+                                            borderColor: Colors.yellow[800],
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 1),
+                                              child: TextAppi(
+                                                text: "Latest",
+                                                textStyle: Style(
+                                                  $text.color(Colors.yellow.shade800),
+                                                  $text.fontSize(isMobile ? 12 : 14),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                        // Tooltip section (cleaned)
+                                        Tooltip(
+                                          message: tooltipMessage,
+                                          waitDuration: const Duration(milliseconds: 200),
+                                          showDuration: const Duration(seconds: 4),
+                                          preferBelow: false,
+                                          triggerMode: isMobile
+                                              ? TooltipTriggerMode.longPress // 👈 mobile long press
+                                              : TooltipTriggerMode.tap,
+                                          // 👈 desktop tap
+                                          child: tooltipIcon,
+                                        ),
+                                      ],
+                                    ),
+                                    MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          final url = apk["to"] ?? "";
+                                          if (url.isNotEmpty) {
+                                            try {
+                                              final fileName = url.split('/').last;
+
+                                              if (kIsWeb) {
+                                                // Web download
+                                                final anchor = html.AnchorElement(href: url)
+                                                  ..setAttribute("download", fileName)
+                                                  ..click();
+                                                Fluttertoast.showToast(
+                                                  msg: "Download started in browser",
+                                                  toastLength: Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.TOP,
+                                                  backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
+                                                  textColor: Colors.white,
+                                                  webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
+                                                  webPosition: "center",
+                                                  timeInSecForIosWeb: 2,
+                                                  fontSize: 14.0,
+                                                );
+                                              } else {
+                                                // Mobile download
+                                                final dir = await getApplicationDocumentsDirectory();
+                                                final savePath = "${dir.path}/$fileName";
+
+                                                final dio = Dio();
+                                                await dio.download(url, savePath);
+
+                                                Fluttertoast.showToast(
+                                                  msg: "Downloaded to $savePath",
+                                                  toastLength: Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.TOP,
+                                                  backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
+                                                  textColor: Colors.white,
+                                                  timeInSecForIosWeb: 2,
+                                                  fontSize: 14.0,
+                                                );
+                                              }
+
+                                              Fluttertoast.showToast(
+                                                msg: "Downloaded",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.TOP,
+                                                backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
+                                                textColor: Colors.white,
+                                                webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
+                                                webPosition: "center",
+                                                timeInSecForIosWeb: 2,
+                                                fontSize: 14.0,
+                                              );
+                                              print("Download complete");
+                                            } catch (e) {
+                                              Fluttertoast.showToast(
+                                                msg: "Download Failed: ${e.toString()}",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.TOP,
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white,
+                                                webBgColor: "#ff0000",
+                                                webPosition: "center",
+                                                timeInSecForIosWeb: 2,
+                                                fontSize: 14.0,
+                                              );
+
+                                              print("Download error: $e");
+                                            }
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg: "No APK Found",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              gravity: ToastGravity.TOP,
+                                              backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
+                                              textColor: Colors.white,
+                                              webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
+                                              webPosition: "center",
+                                              timeInSecForIosWeb: 2,
+                                              fontSize: isMobile ? 10.0 : 14.0,
+                                            );
+                                            print("No APK Found");
+                                          }
+                                        },
+                                        child: SizedBox(
+                                          height: isMobile ? 17 : 20,
+                                          width: isMobile ? 17 : 20,
+                                          child: BoxAppi(
+                                            fillColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
+                                            child: Icon(
+                                              Icons.download,
+                                              size: isMobile ? 14 : 16,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-
-                                  // Tooltip section (cleaned)
-                                  Tooltip(
-                                    message: tooltipMessage,
-                                    waitDuration: const Duration(milliseconds: 200),
-                                    showDuration: const Duration(seconds: 4),
-                                    preferBelow: false,
-                                    triggerMode: isMobile
-                                        ? TooltipTriggerMode.longPress // 👈 mobile long press
-                                        : TooltipTriggerMode.tap,
-                                    // 👈 desktop tap
-                                    child: tooltipIcon,
-                                  ),
-                                ],
-                              ),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    final url = apk["to"] ?? "";
-                                    if (url.isNotEmpty) {
-                                      try {
-                                        final fileName = url.split('/').last;
-
-                                        if (kIsWeb) {
-                                          // Web download
-                                          final anchor = html.AnchorElement(href: url)
-                                            ..setAttribute("download", fileName)
-                                            ..click();
-                                          Fluttertoast.showToast(
-                                            msg: "Download started in browser",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.TOP,
-                                            backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
-                                            textColor: Colors.white,
-                                            webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
-                                            webPosition: "center",
-                                            timeInSecForIosWeb: 2,
-                                            fontSize: 14.0,
-                                          );
-                                        } else {
-                                          // Mobile download
-                                          final dir = await getApplicationDocumentsDirectory();
-                                          final savePath = "${dir.path}/$fileName";
-
-                                          final dio = Dio();
-                                          await dio.download(url, savePath);
-
-                                          Fluttertoast.showToast(
-                                            msg: "Downloaded to $savePath",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.TOP,
-                                            backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
-                                            textColor: Colors.white,
-                                            timeInSecForIosWeb: 2,
-                                            fontSize: 14.0,
-                                          );
-                                        }
-
-                                        Fluttertoast.showToast(
-                                          msg: "Downloaded",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.TOP,
-                                          backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
-                                          textColor: Colors.white,
-                                          webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
-                                          webPosition: "center",
-                                          timeInSecForIosWeb: 2,
-                                          fontSize: 14.0,
-                                        );
-                                        print("Download complete");
-                                      } catch (e) {
-                                        Fluttertoast.showToast(
-                                          msg: "Download Failed: ${e.toString()}",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.TOP,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          webBgColor: "#ff0000",
-                                          webPosition: "center",
-                                          timeInSecForIosWeb: 2,
-                                          fontSize: 14.0,
-                                        );
-
-                                        print("Download error: $e");
-                                      }
-                                    } else {
-                                      Fluttertoast.showToast(
-                                        msg: "No APK Found",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.TOP,
-                                        backgroundColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
-                                        textColor: Colors.white,
-                                        webBgColor: isAppikorn ? "#9263b2" : "#2daba8",
-                                        webPosition: "center",
-                                        timeInSecForIosWeb: 2,
-                                        fontSize: isMobile ? 10.0 : 14.0,
-                                      );
-                                      print("No APK Found");
-                                    }
-                                  },
-                                  child: SizedBox(
-                                    height: isMobile ? 17 : 20,
-                                    width: isMobile ? 17 : 20,
-                                    child: BoxAppi(
-                                      fillColor: isAppikorn ? Color(0xff9263b2) : Color(0xff2daba8),
-                                      child: Icon(
-                                        Icons.download,
-                                        size: isMobile ? 14 : 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
+                                  ],
                                 ),
                               ),
-                            ],
+                            ),
                           ),
                         );
                       }).toList(),
